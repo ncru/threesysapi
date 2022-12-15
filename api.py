@@ -180,8 +180,8 @@ def verify():
             if valid_dm_path != False:
                 _image = Image.open(valid_dm_path)
                 # reg_msg = read_dm_zxing(valid_dm_path)
-                # reg_msg = read_dm_pylibdmtx(_image)
-                reg_msg = read_dm_zbar(_image)
+                reg_msg = read_dm_pylibdmtx(_image)
+                # reg_msg = read_dm_zbar(_image)
                 steg_msg = read_steganography(_image)
                 metadata = document.metadata
                 with connection:

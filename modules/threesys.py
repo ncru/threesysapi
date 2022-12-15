@@ -138,7 +138,7 @@ def read_dm_pylibdmtx(image):
 
 
 def read_dm_zbar(image):
-    (data, rect, polygon, orientation, quality) = pyzbar_decode(image)[0]
+    (data, type, rect, polygon, orientation, quality) = pyzbar_decode(image)
     return data.decode("utf-8")
 
 
