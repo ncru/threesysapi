@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import json
 
+
 INSERT_ORIGPDFS_RETURN_ID = (
     "INSERT INTO origpdfs (orig_pdf_data) VALUES (%s) RETURNING orig_id;"
 )
@@ -13,6 +14,8 @@ INSERT_ORIGPDFS_RETURN_ID = (
 INSERT_THREESYSPDF_RETURN_ROW = "INSERT INTO threesyspdfs (pdf_metadata, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
 
 SELECT_ROW_THREESYSPDF = "SELECT * FROM threesyspdfs WHERE origpdfs_id = %s;"
+
+# check if orig pdf already exists in system
 
 load_dotenv()
 app = Flask(__name__)
@@ -34,15 +37,14 @@ def main():
 
 def initiate_images_and_get_paths(document, images):
     img_paths = []
-    if images:
-        for i, image in enumerate(images):
-            base_name = os.path.basename(document.name)
-            img_name = secure_filename(
-                f'tempimg-{i}-{base_name[: base_name.find(".pdf")]}.png'
-            )
-            img_path = os.path.join(app.config["UPLOAD_FOLDER"], img_name)
-            img_paths.append(img_path)
-            image.save(img_path)
+    for i, image in enumerate(images):
+        base_name = os.path.basename(document.name)
+        img_name = secure_filename(
+            f'tempimg-{i}-{base_name[: base_name.find(".pdf")]}.png'
+        )
+        img_path = os.path.join(app.config["UPLOAD_FOLDER"], img_name)
+        img_paths.append(img_path)
+        image.save(img_path)
     return img_paths
 
 

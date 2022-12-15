@@ -113,10 +113,9 @@ def read_steganography(image):
 
 def grab_all_dms_from_images(paths):
     dms = []
-    if paths:
-        for path in paths:
-            if is_dm(path):
-                dms.append(path)
+    for path in paths:
+        if is_dm(path):
+            dms.append(path)
     return dms
 
 
