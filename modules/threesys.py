@@ -127,7 +127,7 @@ def is_dm(path):
 def read_dm(path):
     reader = zxing.BarCodeReader()
     result = reader.decode(path)
-    return result
+    return result.raw
 
 
 def msg_to_ascii(str):
