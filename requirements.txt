@@ -16,6 +16,7 @@ pycodestyle==2.10.0
 pylibdmtx==0.1.10
 PyMuPDF==1.21.1
 python-dotenv==0.21.0
+pyzbar==0.1.9
 tomli==2.0.1
 treepoem==3.17.0
 Werkzeug==2.2.2

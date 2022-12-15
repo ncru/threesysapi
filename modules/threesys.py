@@ -4,7 +4,8 @@ import io
 from PIL import Image
 import zxing
 import treepoem
-from pylibdmtx.pylibdmtx import decode
+from pylibdmtx.pylibdmtx import decode as pylibdmtx_decode
+from pyzbar.pyzbar import decode as pyzbar_decode
 
 
 def put_steg_dm_in_pdf(pdf_file, steg_dm):
@@ -132,8 +133,13 @@ def read_dm_zxing(path):
 
 
 def read_dm_pylibdmtx(image):
-    (decoded, rect) = decode(image)[0]
+    (decoded, rect) = pylibdmtx_decode(image)[0]
     return decoded.decode("utf-8")
+
+
+def read_dm_zbar(image):
+    (data, rect, polygon, orientation, quality) = pyzbar_decode(image)[0]
+    return data.decode("utf-8")
 
 
 def msg_to_ascii(str):
