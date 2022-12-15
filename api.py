@@ -16,6 +16,7 @@ INSERT_THREESYSPDF_RETURN_ROW = "INSERT INTO threesyspdfs (pdf_metadata, pdf_dat
 SELECT_ROW_THREESYSPDF = "SELECT * FROM threesyspdfs WHERE origpdfs_id = %s;"
 
 # check if orig pdf already exists in system
+# check ppi and dimension of pdf
 
 load_dotenv()
 app = Flask(__name__)
@@ -125,7 +126,6 @@ def generate():
         images = grab_first_page_images(document)
         img_paths = initiate_images_and_get_paths(document, images)
         dm_paths = grab_all_dms_from_images(img_paths)
-        # print(dm_paths, flush=True)
         if len(dm_paths) > 0:
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
@@ -175,7 +175,6 @@ def verify():
         images = grab_first_page_images(document)
         img_paths = initiate_images_and_get_paths(document, images)
         dm_paths = grab_all_dms_from_images(img_paths)
-        # print(dm_paths, flush=True)
         if len(dm_paths) > 0:
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
