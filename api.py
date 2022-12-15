@@ -195,7 +195,8 @@ def verify():
                             if metadata == rpdf_metadata:
                                 final_response = jsonify(
                                     {
-                                        "message": reg_msg
+                                        "message": "This is a signed and valid document",
+                                        "plain": reg_msg
                                     }
                                 )
                                 final_response.status_code = 200
