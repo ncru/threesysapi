@@ -179,7 +179,8 @@ def verify():
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
                 _image = Image.open(valid_dm_path)
-                reg_msg = read_dm(valid_dm_path)
+                read_dm_result = read_dm(valid_dm_path)
+                reg_msg = read_dm_result.raw
                 steg_msg = read_steganography(_image)
                 metadata = document.metadata
                 with connection:

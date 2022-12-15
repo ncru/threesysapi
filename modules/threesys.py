@@ -121,13 +121,13 @@ def grab_all_dms_from_images(paths):
 
 def is_dm(path):
     result = read_dm(path)
-    return True if len(result) > 0 else False
+    return True if result else False
 
 
 def read_dm(path):
     reader = zxing.BarCodeReader()
     result = reader.decode(path)
-    return result.raw
+    return result
 
 
 def msg_to_ascii(str):
