@@ -109,7 +109,8 @@ def generate():
             with connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        INSERT_THREESYSPDF_RETURN_ROW, (metadata, new_pdf_data, steg_id)
+                        INSERT_THREESYSPDF_RETURN_ROW, (
+                            metadata, new_pdf_data, steg_id)
                     )
                     (
                         rpdf_id,
@@ -154,13 +155,14 @@ def verify():
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
                 _image = Image.open(valid_dm_path)
-                reg_msg = read_dm(valid_dm_path)
+                reg_msg = read_dm_zxing(valid_dm_path)
                 steg_msg = read_steganography(_image)
                 metadata = document.metadata
                 # CHECK ORIGINALY OF DOCUMENT
                 with connection:
                     with connection.cursor() as cursor:
-                        cursor.execute(SELECT_ROW_INSERT_THREESYSPDF, (steg_msg,))
+                        cursor.execute(
+                            SELECT_ROW_INSERT_THREESYSPDF, (steg_msg,))
                         (
                             rpdf_id,
                             rpdf_metadata,

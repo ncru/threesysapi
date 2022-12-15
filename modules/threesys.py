@@ -4,6 +4,7 @@ import io
 from PIL import Image
 import zxing
 import treepoem
+from pylibdmtx.pylibdmtx import decode
 
 
 def put_steg_dm_in_pdf(pdf_file, steg_dm):
@@ -120,14 +121,19 @@ def grab_all_dms_from_images(paths):
 
 
 def is_dm(path):
-    result = read_dm(path)
+    result = read_dm_zxing(path)
     return True if result else False
 
 
-def read_dm(path):
+def read_dm_zxing(path):
     reader = zxing.BarCodeReader()
     result = reader.decode(path)
     return result.raw
+
+
+def read_dm_pylibdmtx(image):
+    (decoded, rect) = decode(image)[0]
+    return decoded.decode("utf-8")
 
 
 def msg_to_ascii(str):

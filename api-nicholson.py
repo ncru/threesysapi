@@ -82,7 +82,8 @@ def generate_dmsteg_document(document):
                 INSERT_THREESYSPDF_RETURN_ROW,
                 (metadata, new_pdf_data, steg_id),
             )
-            (rpdf_id, rpdf_metadata, rpdf_data, rorigpdfs_id) = cursor.fetchall()[0]
+            (rpdf_id, rpdf_metadata, rpdf_data,
+             rorigpdfs_id) = cursor.fetchall()[0]
     # send_file(new_path, as_attachment=True)
     rpdf_data_bytes = str(bytes(modified_document.tobytes()))
     modified_document.close()
@@ -98,7 +99,7 @@ def generate_dmsteg_document(document):
 def check_doc_existing_dm_validity(document, images):
     img_paths = initiate_images_and_get_paths(document, images)
     dm_paths = grab_all_dms_from_images(img_paths)
-    if len(dm_paths) > 0:  #   meron dm images
+    if len(dm_paths) > 0:  # meron dm images
         valid_dm_path = check_dms_for_steganography(dm_paths)
         if valid_dm_path != False:
             return {
@@ -169,12 +170,13 @@ def verify():
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
                 _image = Image.open(valid_dm_path)
-                reg_msg = read_dm(valid_dm_path)
+                reg_msg = read_dm_zxing(valid_dm_path)
                 steg_msg = read_steganography(_image)
                 metadata = document.metadata
                 with connection:
                     with connection.cursor() as cursor:
-                        cursor.execute(SELECT_ROW_INSERT_THREESYSPDF, (steg_msg,))
+                        cursor.execute(
+                            SELECT_ROW_INSERT_THREESYSPDF, (steg_msg,))
                         (
                             rpdf_id,
                             rpdf_metadata,
