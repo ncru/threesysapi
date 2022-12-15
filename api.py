@@ -19,6 +19,7 @@ app = Flask(__name__)
 url = os.getenv("DATABASE_URL")
 connection = psycopg2.connect(url)
 app.config["UPLOAD_FOLDER"] = "./uploads/"
+app.config["PYTHONUNBUFFERED"] = True
 ALLOWED_EXTENSIONS = {"pdf"}
 
 
@@ -33,14 +34,15 @@ def main():
 
 def initiate_images_and_get_paths(document, images):
     img_paths = []
-    for i, image in enumerate(images):
-        base_name = os.path.basename(document.name)
-        img_name = secure_filename(
-            f'tempimg-{i}-{base_name[: base_name.find(".pdf")]}.png'
-        )
-        img_path = os.path.join(app.config["UPLOAD_FOLDER"], img_name)
-        img_paths.append(img_path)
-        image.save(img_path)
+    if images:
+        for i, image in enumerate(images):
+            base_name = os.path.basename(document.name)
+            img_name = secure_filename(
+                f'tempimg-{i}-{base_name[: base_name.find(".pdf")]}.png'
+            )
+            img_path = os.path.join(app.config["UPLOAD_FOLDER"], img_name)
+            img_paths.append(img_path)
+            image.save(img_path)
     return img_paths
 
 
@@ -66,7 +68,8 @@ def generate_dm_and_add_to_pdf(document):
     steg_dm = steganography(ord_dm, str(steg_id))
     modified_document = put_steg_dm_in_pdf(document, steg_dm)
     base_name = os.path.basename(modified_document.name)
-    new_name = secure_filename(f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
+    new_name = secure_filename(
+        f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
     new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_name)
     modified_document.save(new_path)
     metadata = json.dumps(modified_document.metadata)
@@ -75,7 +78,8 @@ def generate_dm_and_add_to_pdf(document):
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                INSERT_THREESYSPDF_RETURN_ROW, (metadata, new_pdf_data, steg_id)
+                INSERT_THREESYSPDF_RETURN_ROW, (metadata,
+                                                new_pdf_data, steg_id)
             )
 
     with connection:
@@ -119,6 +123,7 @@ def generate():
         images = grab_first_page_images(document)
         img_paths = initiate_images_and_get_paths(document, images)
         dm_paths = grab_all_dms_from_images(img_paths)
+        # print(dm_paths, flush=True)
         if len(dm_paths) > 0:
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
@@ -168,6 +173,7 @@ def verify():
         images = grab_first_page_images(document)
         img_paths = initiate_images_and_get_paths(document, images)
         dm_paths = grab_all_dms_from_images(img_paths)
+        # print(dm_paths, flush=True)
         if len(dm_paths) > 0:
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:

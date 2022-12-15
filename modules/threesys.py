@@ -113,9 +113,10 @@ def read_steganography(image):
 
 def grab_all_dms_from_images(paths):
     dms = []
-    for path in paths:
-        if is_dm(path):
-            dms.append(path)
+    if paths:
+        for path in paths:
+            if is_dm(path):
+                dms.append(path)
     return dms
 
 
@@ -137,7 +138,7 @@ def msg_to_ascii(str):
 
 
 def chunkify(msg_ascii, chunk_size):
-    return [msg_ascii[i : i + chunk_size] for i in range(0, len(msg_ascii), chunk_size)]
+    return [msg_ascii[i: i + chunk_size] for i in range(0, len(msg_ascii), chunk_size)]
 
 
 def margin_is_empty(pix_map):
