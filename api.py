@@ -13,7 +13,7 @@ INSERT_ORIGPDFS_RETURN_ID = (
 
 INSERT_THREESYSPDF_RETURN_ROW = "INSERT INTO threesyspdfs (pdf_metadata, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
 
-SELECT_ROW_THREESYSPDF = "SELECT * FROM threesyspdfs WHERE origpdfs_id = %s;"
+SELECT_ROW_THREESYSPDF = "SELECT * FROM threesyspdfs WHERE origpdfs_id = (%s);"
 
 # check if orig pdf already exists in system
 # check ppi and dimension of pdf
@@ -111,7 +111,7 @@ def generate():
         if not check_files(request):
             resp = jsonify(
                 {
-                    "message": "Invalid inputs",
+                    "message": "Invalid inputs"
                 }
             )
             resp.status_code = 406
@@ -131,7 +131,7 @@ def generate():
             if valid_dm_path != False:
                 final_response = jsonify(
                     {
-                        "message": "The document is already signed by 3.Sys, use /verify to check if valid",
+                        "message": "The document is already signed by 3.Sys, use /verify to check if valid"
                     }
                 )
                 final_response.status_code = 300
@@ -142,7 +142,7 @@ def generate():
         else:
             final_response = jsonify(
                 {
-                    "message": "The document must have clear 1 inch margins",
+                    "message": "The document must have clear 1 inch margins"
                 }
             )
             final_response.status_code = 400
@@ -185,39 +185,46 @@ def verify():
                 with connection:
                     with connection.cursor() as cursor:
                         cursor.execute(SELECT_ROW_THREESYSPDF, (steg_msg,))
-                        (
-                            rpdf_id,
-                            rpdf_metadata,
-                            rpdf_data,
-                            rorigpdfs_id,
-                        ) = cursor.fetchall()[0]
+                        if cursor.rowcount > 0:
+                            (
+                                rpdf_id,
+                                rpdf_metadata,
+                                rpdf_data,
+                                rorigpdfs_id,
+                            ) = cursor.fetchall()[0]
+                            if metadata == rpdf_metadata:
+                                final_response = jsonify(
+                                    {
+                                        "message": "reg_msg"
+                                    }
+                                )
+                                final_response.status_code = 200
+                            else:
+                                final_response = jsonify(
+                                    {
+                                        "message": "This is a falsified document"
+                                    }
+                                )
+                            final_response.status_code = 200
+                        else:
+                            final_response = jsonify(
+                                {
+                                    "message": "This is a falsified document and has not gone through /generate"
+                                }
+                            )
+                            final_response.status_code = 502
 
-                if metadata == rpdf_metadata:
-                    final_response = jsonify(
-                        {
-                            "message": "This document is signed and valid!",
-                            "data-from-datamatrix": reg_msg,
-                        }
-                    )
-                    final_response.status_code = 200
-                else:
-                    final_response = jsonify(
-                        {
-                            "message": "This is a falsified document",
-                        }
-                    )
-                    final_response.status_code = 200
             else:
                 final_response = jsonify(
                     {
-                        "message": "The document is not signed by 3.Sys",
+                        "message": "The document is not signed by 3.Sys"
                     }
                 )
                 final_response.status_code = 406
         else:
             final_response = jsonify(
                 {
-                    "message": "This document has not been validated",
+                    "message": "This document has not been validated"
                 }
             )
             final_response.status_code = 300
