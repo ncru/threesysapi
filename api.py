@@ -8,10 +8,12 @@ import json
 
 
 INSERT_ORIGPDFS_RETURN_ID = (
-    "INSERT INTO origpdfs (orig_pdf_data) VALUES (%s) RETURNING orig_id;"
+    "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_metadata) VALUES (%s, %s) RETURNING orig_id;"
 )
 
 INSERT_THREESYSPDF_RETURN_ROW = "INSERT INTO threesyspdfs (pdf_metadata, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
+
+SELECT_ROW_ORIGPDFS = "SELECT orig_pdf_metadata -> 'author' AS author, orig_pdf_metadata -> 'creationDate' AS creationdate, orig_pdf_metadata -> 'modDate' AS moddate FROM origpdfs WHERE orig_pdf_metadata ->> 'author' = %s AND orig_pdf_metadata ->> 'creationDate' = %s AND orig_pdf_metadata ->> 'modDate' = %s"
 
 SELECT_ROW_THREESYSPDF = "SELECT * FROM threesyspdfs WHERE origpdfs_id = (%s);"
 
@@ -62,9 +64,11 @@ def check_files(req):
 
 def generate_dm_and_add_to_pdf(document):
     orig_pdf_data = bytes(document.tobytes())
+    orig_pdf_metadata = json.dumps(document.metadata)
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(INSERT_ORIGPDFS_RETURN_ID, (orig_pdf_data,))
+            cursor.execute(INSERT_ORIGPDFS_RETURN_ID,
+                           (orig_pdf_data, orig_pdf_metadata))
             steg_id = cursor.fetchone()[0]
 
     ord_dm = generate_dm(document)
@@ -123,36 +127,53 @@ def generate():
         )
         file.save(file_path)
         document = fitz.open(file_path)
-        images = grab_first_page_images(document)
-        img_paths = initiate_images_and_get_paths(document, images)
-        dm_paths = grab_all_dms_from_images(img_paths)
-        if len(dm_paths) > 0:
-            valid_dm_path = check_dms_for_steganography(dm_paths)
-            if valid_dm_path != False:
-                final_response = jsonify(
-                    {
-                        "message": "The document is already signed by 3.Sys, use /verify to check if valid"
-                    }
-                )
-                final_response.status_code = 300
-            else:
-                final_response = generate_dm_and_add_to_pdf(document)
-        elif margins_passed(document):
-            final_response = generate_dm_and_add_to_pdf(document)
-        else:
+        document_metadata = document.metadata
+        author = document_metadata['author']
+        creation_date = document_metadata['creationDate']
+        mod_date = document_metadata['modDate']
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(SELECT_ROW_ORIGPDFS,
+                               (author, creation_date, mod_date))
+        if cursor.rowcount > 0:
             final_response = jsonify(
                 {
-                    "message": "The document must have clear 1 inch margins"
+                    "message": "The document has been previously signed by 3.Sys"
                 }
             )
-            final_response.status_code = 400
-        if images:
-            for i, image in enumerate(images):
-                image.close()
-                os.remove(img_paths[i])
-        document.close()
-        os.remove(file_path)
-        return final_response
+            final_response.status_code = 409
+        else:
+            images = grab_first_page_images(document)
+            img_paths = initiate_images_and_get_paths(document, images)
+            dm_paths = grab_all_dms_from_images(img_paths)
+            if len(dm_paths) > 0:
+                valid_dm_path = check_dms_for_steganography(dm_paths)
+                if valid_dm_path != False:
+                    final_response = jsonify(
+                        {
+                            "message": "The document is already signed by 3.Sys, use /verify to check if valid"
+                        }
+                    )
+                    final_response.status_code = 300
+                else:
+                    final_response = generate_dm_and_add_to_pdf(
+                        document)
+            elif margins_passed(document):
+                final_response = generate_dm_and_add_to_pdf(document)
+            else:
+                final_response = jsonify(
+                    {
+                        "message": "The document must have clear 1 inch margins"
+                    }
+                )
+                final_response.status_code = 400
+    if images:
+        for i, image in enumerate(images):
+            image.close()
+            os.remove(img_paths[i])
+    document.close()
+    os.remove(file_path)
+    return final_response
 
 
 @app.route("/verify", methods=["POST"])
@@ -179,8 +200,8 @@ def verify():
             valid_dm_path = check_dms_for_steganography(dm_paths)
             if valid_dm_path != False:
                 _image = Image.open(valid_dm_path)
-                # reg_msg = read_dm_zxing(valid_dm_path)
-                reg_msg = read_dm_pylibdmtx(_image)
+                reg_msg = read_dm_zxing(valid_dm_path)
+                # reg_msg = read_dm_pylibdmtx(_image)
                 # reg_msg = read_dm_zbar(_image)
                 steg_msg = read_steganography(_image)
                 metadata = document.metadata
