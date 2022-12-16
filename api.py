@@ -176,12 +176,12 @@ def generate():
     return final_response
 
 
-@app.route("/verify", methods=["POST"])
+@app.route("/verify", methods=["GET"])
 def verify():
     final_response = {}
     images = []
     file_path = ""
-    if request.method == "POST":
+    if request.method == "GET":
         if not check_files(request):
             return {
                 "message": "Invalid inputs",
