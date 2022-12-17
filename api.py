@@ -54,8 +54,8 @@ def initiate_images_and_get_paths(document, images):
 def check_files(req):
     file = req.files["file"]
     if (
-        "file" not in request.files
-        or request.files["file"] == ""
+        "file" not in req.files
+        or req.files["file"] == ""
         or not allowed_file(file.filename)
     ):
         return False
