@@ -9,8 +9,8 @@ from pyzbar.pyzbar import decode as pyzbar_decode
 
 
 def put_steg_dm_in_pdf(pdf_file, steg_dm):
-    w = 20
-    allowance = 3
+    w = 34
+    allowance = 2
     first_page = pdf_file[0]
     (_x, _y, width, height) = first_page.rect
     rect = (
@@ -180,6 +180,9 @@ def margins_passed(pdf_file):
         right = page.get_pixmap(clip=r_right)
 
         margins = [header, footer, left, right]
+
+        # for i in range(len(margins)):
+        #     margins[i].save(f'margin-{i}.png')
 
         for margin in margins:
             if not margin_is_empty(margin):
