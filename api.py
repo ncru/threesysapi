@@ -7,9 +7,7 @@ from werkzeug.utils import secure_filename
 import json
 
 
-INSERT_ORIGPDFS_RETURN_ID = (
-    "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_metadata) VALUES (%s, %s) RETURNING orig_id;"
-)
+INSERT_ORIGPDFS_RETURN_ID = "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_metadata) VALUES (%s, %s) RETURNING orig_id;"
 
 INSERT_THREESYSPDF_RETURN_ROW = "INSERT INTO threesyspdfs (pdf_metadata, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
 
@@ -67,16 +65,16 @@ def generate_dm_and_add_to_pdf(document, dm_location):
     orig_pdf_metadata = json.dumps(document.metadata)
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(INSERT_ORIGPDFS_RETURN_ID,
-                           (orig_pdf_data, orig_pdf_metadata))
+            cursor.execute(
+                INSERT_ORIGPDFS_RETURN_ID, (orig_pdf_data, orig_pdf_metadata)
+            )
             steg_id = cursor.fetchone()[0]
 
     ord_dm = generate_dm(document)
     steg_dm = steganography(ord_dm, str(steg_id))
     modified_document = put_steg_dm_in_pdf(document, steg_dm, dm_location)
     base_name = os.path.basename(modified_document.name)
-    new_name = secure_filename(
-        f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
+    new_name = secure_filename(f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
     new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_name)
     modified_document.save(new_path)
     metadata = json.dumps(modified_document.metadata)
@@ -85,8 +83,7 @@ def generate_dm_and_add_to_pdf(document, dm_location):
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                INSERT_THREESYSPDF_RETURN_ROW, (metadata,
-                                                new_pdf_data, steg_id)
+                INSERT_THREESYSPDF_RETURN_ROW, (metadata, new_pdf_data, steg_id)
             )
 
     with connection:
@@ -113,15 +110,13 @@ def generate():
     file_path = ""
     if request.method == "POST":
         if not check_files(request):
-            resp = jsonify(
-                {
-                    "message": "Invalid inputs"
-                }
-            )
+            resp = jsonify({"message": "Invalid inputs"})
             resp.status_code = 406
             return resp
 
-        dm_location = request.form['location'] if 'location' in request.form else 'bottom-right'
+        dm_location = (
+            request.form["location"] if "location" in request.form else "bottom-right"
+        )
 
         # dm_location = request.args.get('location') if request.args.get(
         #     'location') else "bottom-right"
@@ -133,18 +128,15 @@ def generate():
         file.save(file_path)
         document = fitz.open(file_path)
         document_metadata = document.metadata
-        author = document_metadata['author']
-        creation_date = document_metadata['creationDate']
-        mod_date = document_metadata['modDate']
+        author = document_metadata["author"]
+        creation_date = document_metadata["creationDate"]
+        mod_date = document_metadata["modDate"]
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(SELECT_ROW_ORIGPDFS,
-                               (author, creation_date, mod_date))
+                cursor.execute(SELECT_ROW_ORIGPDFS, (author, creation_date, mod_date))
         if cursor.rowcount > 0:
             final_response = jsonify(
-                {
-                    "message": "The document has been previously signed by 3.Sys"
-                }
+                {"message": "The document has been previously signed by 3.Sys"}
             )
             final_response.status_code = 409
         else:
@@ -161,11 +153,9 @@ def generate():
                     )
                     final_response.status_code = 300
                 else:
-                    final_response = generate_dm_and_add_to_pdf(
-                        document, dm_location)
+                    final_response = generate_dm_and_add_to_pdf(document, dm_location)
             elif margins_passed(document, dm_location):
-                final_response = generate_dm_and_add_to_pdf(
-                    document, dm_location)
+                final_response = generate_dm_and_add_to_pdf(document, dm_location)
             else:
                 final_response = jsonify(
                     {
@@ -225,15 +215,13 @@ def verify():
                                 final_response = jsonify(
                                     {
                                         "message": "This is a signed and valid document",
-                                        "plain": reg_msg
+                                        "plain": reg_msg,
                                     }
                                 )
                                 final_response.status_code = 200
                             else:
                                 final_response = jsonify(
-                                    {
-                                        "message": "This is a falsified document"
-                                    }
+                                    {"message": "This is a falsified document"}
                                 )
                             final_response.status_code = 200
                         else:
@@ -242,20 +230,16 @@ def verify():
                                     "message": "This is a falsified document and has not gone through /generate"
                                 }
                             )
-                            final_response.status_code = 502
+                            final_response.status_code = 406
 
             else:
                 final_response = jsonify(
-                    {
-                        "message": "The document is not signed by 3.Sys"
-                    }
+                    {"message": "The document is not signed by 3.Sys"}
                 )
                 final_response.status_code = 406
         else:
             final_response = jsonify(
-                {
-                    "message": "This document has not been validated"
-                }
+                {"message": "This document has not been validated"}
             )
             final_response.status_code = 300
         if images:
