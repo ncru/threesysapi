@@ -6,19 +6,37 @@ import zxing
 import treepoem
 from pylibdmtx.pylibdmtx import decode as pylibdmtx_decode
 from pyzbar.pyzbar import decode as pyzbar_decode
+allowance = 3
 
 
-def put_steg_dm_in_pdf(pdf_file, steg_dm):
-    w = 34
-    allowance = 2
+def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_location):
+    dm_width = 72 - (2 * allowance)
     first_page = pdf_file[0]
-    (_x, _y, width, height) = first_page.rect
-    rect = (
-        width - (w + allowance),
-        height - (w + allowance),
-        width - allowance,
-        height - allowance,
-    )
+    (_x, _y, page_width, page_height) = first_page.rect
+
+    match dm_location:
+        case 'top-left':
+            x1 = allowance
+            y1 = allowance
+            x2 = dm_width + allowance
+            y2 = dm_width + allowance
+        case 'top-right':
+            x1 = page_width - dm_width - allowance
+            y1 = allowance
+            x2 = page_width - allowance
+            y2 = allowance + dm_width
+        case 'bottom-left':
+            x1 = allowance
+            y1 = page_height - dm_width - allowance
+            x2 = allowance + dm_width
+            y2 = page_height - allowance
+        case 'bottom-right':
+            x1 = page_width - dm_width - allowance
+            y1 = page_height - dm_width - allowance
+            x2 = page_width - allowance
+            y2 = page_height - allowance
+
+    rect = (x1, y1, x2, y2)
     byteIO = io.BytesIO()
     steg_dm.save(byteIO, format="PNG")
     img_bytes = byteIO.getvalue()
@@ -152,42 +170,82 @@ def chunkify(msg_ascii, chunk_size):
     return [msg_ascii[i: i + chunk_size] for i in range(0, len(msg_ascii), chunk_size)]
 
 
-def margin_is_empty(pix_map):
+def check_specific_margin_area(pix_map, dm_location, x_threshold, y_threshold):
     coords = []
-    for x in range(pix_map.width):
-        for y in range(pix_map.height):
+    pix_width = pix_map.width
+    pix_height = pix_map.height
+    for x in range(pix_width):
+        for y in range(pix_height):
             pixel = pix_map.pixel(x, y)
             if pixel != (255, 255, 255):
-                coords.append((x, y))
+                match dm_location:
+                    case 'top-left':
+                        if x <= x_threshold and y <= y_threshold:
+                            coords.append((x, y))
+                    case 'top-right':
+                        if x >= x_threshold and y <= y_threshold:
+                            coords.append((x, y))
+                    case 'bottom-left':
+                        if x <= x_threshold and y >= y_threshold:
+                            coords.append((x, y))
+                    case 'bottom-right':
+                        if x >= x_threshold and y >= y_threshold:
+                            coords.append((x, y))
     return True if len(coords) == 0 else False
 
 
-def margins_passed(pdf_file):
+def margin_is_empty(pix_map, dm_location):
+    dm_width = 72 - (2 * allowance)
+    pix_width = pix_map.width
+    pix_height = pix_map.height
+    padded_dm = dm_width + (2 * allowance)
+    match dm_location:
+        case 'top-left':
+            x_threshold = padded_dm
+            y_threshold = padded_dm
+        case 'top-right':
+            x_threshold = pix_width - padded_dm
+            y_threshold = padded_dm
+        case 'bottom-left':
+            x_threshold = padded_dm
+            y_threshold = pix_height - padded_dm
+        case 'bottom-right':
+            x_threshold = pix_width - padded_dm
+            y_threshold = pix_height - padded_dm
+
+    return check_specific_margin_area(pix_map, dm_location, x_threshold, y_threshold)
+
+
+def margins_passed(pdf_file, dm_location):
     inch = 72
 
-    for page in pdf_file:
-        p_width = page.rect.width
-        p_height = page.rect.height
+    # for page in pdf_file:
+    page = pdf_file[0]
+    p_width = page.rect.width
+    p_height = page.rect.height
 
-        r_header = fitz.Rect(0, 0, p_width, inch)
-        r_footer = fitz.Rect(0, p_height - inch, p_width, p_height)
-        r_left = fitz.Rect(0, 0, inch, p_height)
-        r_right = fitz.Rect(p_width - inch, 0, p_width, p_height)
+    r_header = fitz.Rect(0, 0, p_width, inch)
+    r_footer = fitz.Rect(0, p_height - inch, p_width, p_height)
+    r_left = fitz.Rect(0, 0, inch, p_height)
+    r_right = fitz.Rect(p_width - inch, 0, p_width, p_height)
 
-        header = page.get_pixmap(clip=r_header)
-        footer = page.get_pixmap(clip=r_footer)
-        left = page.get_pixmap(clip=r_left)
-        right = page.get_pixmap(clip=r_right)
+    header = page.get_pixmap(clip=r_header)
+    footer = page.get_pixmap(clip=r_footer)
+    # left = page.get_pixmap(clip=r_left)
+    # right = page.get_pixmap(clip=r_right)
 
-        margins = [header, footer, left, right]
+    # for i in range(len(margins)):
+    #     margins[i].save(f'margin-{i}.png')
 
-        # for i in range(len(margins)):
-        #     margins[i].save(f'margin-{i}.png')
-
-        for margin in margins:
-            if not margin_is_empty(margin):
-                return False
-    return True
+    match dm_location:
+        case 'top-left':
+            return margin_is_empty(header, dm_location)
+        case 'top-right':
+            return margin_is_empty(header, dm_location)
+        case 'bottom-left':
+            return margin_is_empty(footer, dm_location)
+        case 'bottom-right':
+            return margin_is_empty(footer, dm_location)
 
 
 def grab_first_page_images(pdf_file):

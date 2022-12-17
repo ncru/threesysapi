@@ -62,7 +62,7 @@ def check_files(req):
     return True
 
 
-def generate_dm_and_add_to_pdf(document):
+def generate_dm_and_add_to_pdf(document, dm_location):
     orig_pdf_data = bytes(document.tobytes())
     orig_pdf_metadata = json.dumps(document.metadata)
     with connection:
@@ -73,7 +73,7 @@ def generate_dm_and_add_to_pdf(document):
 
     ord_dm = generate_dm(document)
     steg_dm = steganography(ord_dm, str(steg_id))
-    modified_document = put_steg_dm_in_pdf(document, steg_dm)
+    modified_document = put_steg_dm_in_pdf(document, steg_dm, dm_location)
     base_name = os.path.basename(modified_document.name)
     new_name = secure_filename(
         f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
@@ -121,6 +121,9 @@ def generate():
             resp.status_code = 406
             return resp
 
+        dm_location = request.args.get('location') if request.args.get(
+            'location') else "bottom-right"
+
         file = request.files["file"]
         file_path = os.path.join(
             app.config["UPLOAD_FOLDER"], secure_filename(file.filename)
@@ -157,9 +160,10 @@ def generate():
                     final_response.status_code = 300
                 else:
                     final_response = generate_dm_and_add_to_pdf(
-                        document)
-            elif margins_passed(document):
-                final_response = generate_dm_and_add_to_pdf(document)
+                        document, dm_location)
+            elif margins_passed(document, dm_location):
+                final_response = generate_dm_and_add_to_pdf(
+                    document, dm_location)
             else:
                 final_response = jsonify(
                     {
