@@ -121,8 +121,10 @@ def generate():
             resp.status_code = 406
             return resp
 
-        dm_location = request.args.get('location') if request.args.get(
-            'location') else "bottom-right"
+        dm_location = request.form['location'] if 'location' in request.form else 'bottom-right'
+
+        # dm_location = request.args.get('location') if request.args.get(
+        #     'location') else "bottom-right"
 
         file = request.files["file"]
         file_path = os.path.join(
@@ -167,7 +169,7 @@ def generate():
             else:
                 final_response = jsonify(
                     {
-                        "message": "The document must have clear 1 inch margins"
+                        "message": "The document must have clear space in the designated area for the signature"
                     }
                 )
                 final_response.status_code = 400
