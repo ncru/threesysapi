@@ -212,17 +212,17 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
             y1 = allowance
             x2 = dm_width + allowance
             y2 = dm_width + allowance
-        case 'top-right':
+        case "top-right":
             x1 = page_width - dm_width - allowance
             y1 = allowance
             x2 = page_width - allowance
             y2 = allowance + dm_width
-        case 'bottom-left':
+        case "bottom-left":
             x1 = allowance
             y1 = page_height - dm_width - allowance
             x2 = allowance + dm_width
             y2 = page_height - allowance
-        case 'bottom-right':
+        case "bottom-right":
             x1 = page_width - dm_width - allowance
             y1 = page_height - dm_width - allowance
             x2 = page_width - allowance
