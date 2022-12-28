@@ -212,7 +212,6 @@ def margin_is_empty(pix_map, dm_location):
         case 'bottom-right':
             x_threshold = pix_width - padded_dm
             y_threshold = pix_height - padded_dm
-
     return check_specific_margin_area(pix_map, dm_location, x_threshold, y_threshold)
 
 

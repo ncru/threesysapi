@@ -74,17 +74,10 @@ def generate_dm_and_add_to_pdf(document, dm_location):
     steg_dm = steganography(ord_dm, str(steg_id))
     modified_document = put_steg_dm_in_pdf(document, steg_dm, dm_location)
     base_name = os.path.basename(modified_document.name)
-    new_name = secure_filename(f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
+    new_name = secure_filename(
+        f'{base_name[: base_name.find(".pdf")]}-signed.pdf')
     new_path = os.path.join(app.config["UPLOAD_FOLDER"], new_name)
     modified_document.save(new_path)
-    metadata = json.dumps(modified_document.metadata)
-    new_pdf_data = bytes(modified_document.tobytes())
-
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                INSERT_THREESYSPDF_RETURN_ROW, (metadata, new_pdf_data, steg_id)
-            )
 
     with connection:
         with connection.cursor() as cursor:
@@ -133,7 +126,8 @@ def generate():
         mod_date = document_metadata["modDate"]
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(SELECT_ROW_ORIGPDFS, (author, creation_date, mod_date))
+                cursor.execute(SELECT_ROW_ORIGPDFS,
+                               (author, creation_date, mod_date))
         if cursor.rowcount > 0:
             final_response = jsonify(
                 {"message": "The document has been previously signed by 3.Sys"}
@@ -153,9 +147,11 @@ def generate():
                     )
                     final_response.status_code = 300
                 else:
-                    final_response = generate_dm_and_add_to_pdf(document, dm_location)
+                    final_response = generate_dm_and_add_to_pdf(
+                        document, dm_location)
             elif margins_passed(document, dm_location):
-                final_response = generate_dm_and_add_to_pdf(document, dm_location)
+                final_response = generate_dm_and_add_to_pdf(
+                    document, dm_location)
             else:
                 final_response = jsonify(
                     {
