@@ -54,7 +54,7 @@ def check_document_dimensions(document):
     return True
 
 
-# reads the regular payload of the dm
+# read the regular payload of the dm
 def read_dm_pylibdmtx(image):
     print("read_dm_pylibdmtx")
     image_width, image_height = image.size
