@@ -58,7 +58,7 @@ def verify_pass(TSdoc):
 def verify_falsified():
     response = jsonify(
         {
-            "message": "This is a falsified document and has not gone through /generate."
+            "message": "This is a falsified document."
         }
     )
     response.status_code = 406
@@ -68,7 +68,7 @@ def verify_falsified():
 def verify_fail():
     response = jsonify(
         {
-            "message": "This document has not been validated"
+            "message": "This document has not gone through /generate"
         }
     )
     response.status_code = 300
@@ -77,9 +77,10 @@ def verify_fail():
 
 def generate_if_hell(TSdoc):
     traits = TSdoc.traits
+    # print(traits)
+    print(list(traits.values()))
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
-    print(traitsList)
 # fmt: off
     match (traitsList):
         case    [1, 0, 0, 0, 0] | \
@@ -108,9 +109,10 @@ def generate_if_hell(TSdoc):
 
 def verify_if_hell(TSdoc):
     traits = TSdoc.traits
+    # print(traits)
+    print(list(traits.values()))
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
-    print(traitsList)
 # fmt: off
     match (traitsList):
         case    [1, 0, 1, 1, 0] | \

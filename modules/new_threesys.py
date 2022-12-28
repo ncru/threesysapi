@@ -58,7 +58,6 @@ def check_document_dimensions(document):
 def read_dm_pylibdmtx(image):
     print("read_dm_pylibdmtx")
     result = pylibdmtx_decode(image)
-    print(result)
     if not result:
         return ""
     (decoded, rect) = result[0]

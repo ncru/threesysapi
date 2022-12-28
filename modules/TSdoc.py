@@ -27,7 +27,7 @@ class TSdoc:
         # All 5 binary traits
         self.traits = {
             # True means margins are clean and can hold the dm steg as specified by  self.dm_steg_location, False otherwise
-            "margins": self.document_margins_passed() if self.dm_steg_location else None,
+            "margins": self.document_margins_passed() if self.dm_steg_location else True,
             "images": True if self.images else False,
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,
@@ -55,20 +55,16 @@ class TSdoc:
         footer = page.get_pixmap(clip=rect_footer)
 
         match self.dm_steg_location:
-            case 'top-left':
-                return self.margin_is_empty(header)
-            case 'top-right':
-                return self.margin_is_empty(header)
-            case 'bottom-left':
-                return self.margin_is_empty(footer)
-            case 'bottom-right':
-                return self.margin_is_empty(footer)
+            case 'top-left' | 'top-right':
+                return self.check_margin(header)
+            case 'bottom-left' | 'bottom-right':
+                return self.check_margin(footer)
 
     # utility function for check_document_margins which defines the specific
     # thresholds necessary for checking of whether or not there is enough
     # white pixel space int he desired location for the dm steg
-    def margin_is_empty(self, pix_map):
-        print("margin_is_empty")
+    def check_margin(self, pix_map):
+        print("check_margin")
         dm_width = 72 - (2 * allowance)
         pix_width = pix_map.width
         pix_height = pix_map.height
@@ -86,13 +82,13 @@ class TSdoc:
             case 'bottom-right':
                 x_threshold = pix_width - padded_dm
                 y_threshold = pix_height - padded_dm
-        return self.check_specific_margin_area(pix_map, x_threshold, y_threshold)
+        return self.check_designated_margin_area(pix_map, x_threshold, y_threshold)
 
     # utility function for check_document_margins which checks the defined pixel spaces
     # ,according to threshold (defined by margin_is_empty). This function ultimately
     # determines if the margin of the document qualifies for a dm steg to be placed on it
-    def check_specific_margin_area(self, pix_map, x_threshold, y_threshold):
-        print("check_specific_margin_area")
+    def check_designated_margin_area(self, pix_map, x_threshold, y_threshold):
+        print("check_designated_margin_area")
         coords = []
         pix_width = pix_map.width
         pix_height = pix_map.height
