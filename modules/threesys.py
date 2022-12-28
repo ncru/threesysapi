@@ -57,6 +57,9 @@ def check_document_dimensions(document):
 # reads the regular payload of the dm
 def read_dm_pylibdmtx(image):
     print("read_dm_pylibdmtx")
+    image_width, image_height = image.size
+    if image_width > 350 and image_height > 350:
+        return ""
     result = pylibdmtx_decode(image)
     if not result:
         return ""
@@ -199,7 +202,7 @@ def chunkify(binary_stream, chunk_size):
 # attaches generated steg dms to the specified location on the document
 def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     print("put_steg_dm_in_pdf")
-    dm_width = 72 - (2 * allowance)
+    dm_width = (72 - (2 * allowance)) / 2  # for a half inch sized dm
     first_page = pdf_file[0]
     (_x, _y, page_width, page_height) = first_page.rect
 
