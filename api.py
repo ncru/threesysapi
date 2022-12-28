@@ -6,7 +6,6 @@ from flask import Flask, render_template, request
 
 load_dotenv()
 app = Flask(__name__)
-app.config["PYTHONUNBUFFERED"] = True
 
 
 @app.route("/")
