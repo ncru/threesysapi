@@ -1,7 +1,7 @@
 import fitz
 import io
 from PIL import Image
-from modules.new_threesys import *
+from modules.threesys import *
 
 
 # class definition that allows the api to define the five document traits of
@@ -15,8 +15,7 @@ class TSdoc:
         # this is a fitz document object
         self.document = document
         # A boolean of if the document has already been previously signed by 3.Sys
-        self.already_signed = check_if_doc_is_already_prev_signed(
-            self.document)
+        self.already_signed = check_if_doc_is_already_prev_signed(self.document)
         # a list of all the document images (may be empty)
         self.images = self.grab_all_first_page_images()
         # a list of all dms derived from self.images (may be empty)
@@ -27,12 +26,16 @@ class TSdoc:
         # All 5 binary traits
         self.traits = {
             # True means margins are clean and can hold the dm steg as specified by  self.dm_steg_location, False otherwise
-            "margins": self.document_margins_passed() if self.dm_steg_location else True,
+            "margins": self.document_margins_passed()
+            if self.dm_steg_location
+            else True,
             "images": True if self.images else False,
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,
             # this is set to default False as it will only be determined by the /verify endpoint
-            "modified": check_if_document_is_modified(self.document, self.dm_stegs) if self.dm_stegs else False
+            "modified": check_if_document_is_modified(self.document, self.dm_stegs)
+            if self.dm_stegs
+            else False,
         }
 
         if not self.traits["modified"] and self.dm_stegs:
@@ -55,9 +58,9 @@ class TSdoc:
         footer = page.get_pixmap(clip=rect_footer)
 
         match self.dm_steg_location:
-            case 'top-left' | 'top-right':
+            case "top-left" | "top-right":
                 return self.check_margin(header)
-            case 'bottom-left' | 'bottom-right':
+            case "bottom-left" | "bottom-right":
                 return self.check_margin(footer)
 
     # utility function for check_document_margins which defines the specific
@@ -70,16 +73,16 @@ class TSdoc:
         pix_height = pix_map.height
         padded_dm = dm_width + (2 * allowance)
         match self.dm_steg_location:
-            case 'top-left':
+            case "top-left":
                 x_threshold = padded_dm
                 y_threshold = padded_dm
-            case 'top-right':
+            case "top-right":
                 x_threshold = pix_width - padded_dm
                 y_threshold = padded_dm
-            case 'bottom-left':
+            case "bottom-left":
                 x_threshold = padded_dm
                 y_threshold = pix_height - padded_dm
-            case 'bottom-right':
+            case "bottom-right":
                 x_threshold = pix_width - padded_dm
                 y_threshold = pix_height - padded_dm
         return self.check_designated_margin_area(pix_map, x_threshold, y_threshold)
@@ -97,16 +100,16 @@ class TSdoc:
                 pixel = pix_map.pixel(x, y)
                 if pixel != (255, 255, 255):
                     match self.dm_steg_location:
-                        case 'top-left':
+                        case "top-left":
                             if x <= x_threshold and y <= y_threshold:
                                 coords.append((x, y))
-                        case 'top-right':
+                        case "top-right":
                             if x >= x_threshold and y <= y_threshold:
                                 coords.append((x, y))
-                        case 'bottom-left':
+                        case "bottom-left":
                             if x <= x_threshold and y >= y_threshold:
                                 coords.append((x, y))
-                        case 'bottom-right':
+                        case "bottom-right":
                             if x >= x_threshold and y >= y_threshold:
                                 coords.append((x, y))
         return True if len(coords) == 0 else False
@@ -130,7 +133,9 @@ class TSdoc:
         print("grab_all_dms_from_images")
         if not self.images:
             return []
-        return list(filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images))
+        return list(
+            filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images)
+        )
 
     # reads every collected dm from the document (if there are any) and checks to see
     # if there are any with valid 3.Sys This function will return false if there are multiple
@@ -140,7 +145,11 @@ class TSdoc:
         print("grab_all_dm_steg_from_dms")
         if not self.dm_images:
             return []
-        return list(filter(lambda img: True if read_steganography(img) else False, self.dm_images))
+        return list(
+            filter(
+                lambda img: True if read_steganography(img) else False, self.dm_images
+            )
+        )
 
     # generate a dm, steganographize it and add it to the document at the specified location
 
@@ -150,7 +159,8 @@ class TSdoc:
         ord_dm = generate_dm(self.document)
         steg_dm = steganography(ord_dm, str(steg_id))
         modified_document = put_steg_dm_in_pdf(
-            self.document, steg_dm, self.dm_steg_location)
+            self.document, steg_dm, self.dm_steg_location
+        )
         metadata = json.dumps(modified_document.metadata)
         new_pdf_data = bytes(modified_document.tobytes())
         save_modified_doc_to_db(metadata, new_pdf_data, steg_id)

@@ -4,3 +4,5 @@
 /__pycache__
 /.env
 /.flaskenv
+/others_tbd
+/cleandb.py
