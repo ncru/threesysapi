@@ -10,6 +10,7 @@ class TSdoc:
     # initialize GenereateTSdoc the 5 notable traits and the desired location for
     # the dm-steg to be located (default is bottom right)
     def __init__(self, document, dm_steg_location=None):
+        # string of the location where the user may or may not have defined where to put the steg dm
         self.dm_steg_location = dm_steg_location
         # this is a fitz document object
         self.document = document
@@ -40,6 +41,7 @@ class TSdoc:
     # mother function for checking if the margins of the document have enough
     # white pixel space for the dm-steg to be placed in.
     def document_margins_passed(self):
+        print("document_margins_passed")
         inch = 72
 
         page = self.document[0]
@@ -66,6 +68,7 @@ class TSdoc:
     # thresholds necessary for checking of whether or not there is enough
     # white pixel space int he desired location for the dm steg
     def margin_is_empty(self, pix_map):
+        print("margin_is_empty")
         dm_width = 72 - (2 * allowance)
         pix_width = pix_map.width
         pix_height = pix_map.height
@@ -89,6 +92,7 @@ class TSdoc:
     # ,according to threshold (defined by margin_is_empty). This function ultimately
     # determines if the margin of the document qualifies for a dm steg to be placed on it
     def check_specific_margin_area(self, pix_map, x_threshold, y_threshold):
+        print("check_specific_margin_area")
         coords = []
         pix_width = pix_map.width
         pix_height = pix_map.height
@@ -113,6 +117,7 @@ class TSdoc:
 
     # indiscirminantly grabs all the images from the first page of the document
     def grab_all_first_page_images(self):
+        print("grab_all_first_page_images")
         page = self.document[0]
         image_list = page.get_images()
         images = []
@@ -126,6 +131,7 @@ class TSdoc:
 
     # filters out the dms from the collected document images
     def grab_all_dms_from_images(self):
+        print("grab_all_dms_from_images")
         if not self.images:
             return []
         return list(filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images))
@@ -135,6 +141,7 @@ class TSdoc:
     # steg valid dms because this is an indicator of a falsified document
 
     def grab_all_dm_steg_from_dms(self):
+        print("grab_all_dm_steg_from_dms")
         if not self.dm_images:
             return []
         return list(filter(lambda img: True if read_steganography(img) else False, self.dm_images))
@@ -142,6 +149,7 @@ class TSdoc:
     # generate a dm, steganographize it and add it to the document at the specified location
 
     def generate_dm_and_add_to_pdf(self):
+        print("generate_dm_and_add_to_pdf")
         steg_id = save_orig_doc_to_db(self.document)
         ord_dm = generate_dm(self.document)
         steg_dm = steganography(ord_dm, str(steg_id))

@@ -51,8 +51,8 @@ def verify():
     # initialize TSdoc
     ts_doc = TSdoc(document)
 
-    return str(ts_doc.__dict__)
-    # return verify_if_hell(ts_doc)
+    # return str(ts_doc.__dict__)
+    return verify_if_hell(ts_doc)
 
 
 if __name__ == "__main__":

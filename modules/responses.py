@@ -3,6 +3,8 @@ import io
 
 
 def generate_pass(TSdoc):
+    if TSdoc.already_signed:
+        return generate_fail()
     (new_pdf_data, new_pdf_file_name) = TSdoc.generate_dm_and_add_to_pdf()
     return send_file(
         io.BytesIO(new_pdf_data),
@@ -15,7 +17,7 @@ def generate_pass(TSdoc):
 def generate_fail():
     response = jsonify(
         {
-            "message": "The document is already signed by 3.Sys."
+            "message": "The document has been previously signed by 3.Sys."
         }
     )
     response.status_code = 300
@@ -39,6 +41,7 @@ def generate_fail_margin():
         }
     )
     response.status_code = 400
+    return response
 
 
 def verify_pass(TSdoc):
@@ -76,6 +79,7 @@ def generate_if_hell(TSdoc):
     traits = TSdoc.traits
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
+    print(traitsList)
 # fmt: off
     match (traitsList):
         case    [1, 0, 0, 0, 0] | \
@@ -106,6 +110,7 @@ def verify_if_hell(TSdoc):
     traits = TSdoc.traits
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
+    print(traitsList)
 # fmt: off
     match (traitsList):
         case    [1, 0, 1, 1, 0] | \
