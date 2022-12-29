@@ -2,6 +2,39 @@ from flask import send_file, jsonify
 import io
 
 
+def default_route():
+    response = jsonify(
+        {
+            "message": """
+            Please use /generate or /verify to utilize this API
+            or
+            open this demo application <link>
+            """
+        }
+    )
+    response.status_code = 200
+    return response
+
+
+def input_fail(type):
+    match type:
+        case 0:
+            response = jsonify(
+                {
+                    "message": "Invalid file type"
+                }
+            )
+            response.status_code = 406
+        case 1:
+            response = jsonify(
+                {
+                    "message": "Pdf size unacceptable"
+                }
+            )
+            response.status_code = 406
+    return response
+
+
 def generate_pass(TSdoc):
     if TSdoc.already_signed:
         return generate_fail()

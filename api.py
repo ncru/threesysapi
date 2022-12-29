@@ -10,17 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-    response = jsonify(
-        {
-            "message": """
-            Please use /generate or /verify to utilize this API
-            or
-            open this demo application <link>
-            """
-        }
-    )
-    response.status_code = 200
-    return response
+    return default_route()
 
 
 @app.route("/generate", methods=["POST"])
@@ -30,13 +20,13 @@ def generate():
 
     # check if document is PDF
     if not document:
-        return "PDF ERROR"
+        return input_fail(0)
 
     dimensions_passed = check_document_dimensions(document)
 
     # check if document is big enough for 1 inch margins
     if not dimensions_passed:
-        return "SIZE ERROR"
+        return input_fail(1)
 
     # check to see if the dm location parameter is set. If not then default to bottom right
     dm_steg_location = (
