@@ -5,11 +5,7 @@ import io
 def default_route():
     response = jsonify(
         {
-            "message": """
-            Please use /generate or /verify to utilize this API
-            or
-            open this demo application <link>
-            """
+            "message": "Please use /generate or /verify to utilize this API or open this demo application <link>"
         }
     )
     response.status_code = 200
