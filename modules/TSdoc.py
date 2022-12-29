@@ -41,7 +41,7 @@ class TSdoc:
         if not self.traits["modified"] and self.dm_stegs:
             self.regular_dm_payload = read_dm_pylibdmtx(self.dm_stegs[0])
 
-    def check_set_dm_steg_location(location):
+    def check_set_dm_steg_location(self, location):
         match location:
             case "top-left" | "top-right" | "bottom-left" | "bottom-right":
                 return location
