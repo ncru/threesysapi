@@ -3,7 +3,8 @@
 FROM python:3.11-slim-bullseye
 
 RUN apt-get update \
-    && apt-get install -y libdmtx0b
+    && apt-get install -y libdmtx0b \
+    && apt-get install -y ghostscript
 
 # copy the requirements file into the image
 COPY ./requirements.txt /threesysapi/requirements.txt
