@@ -173,6 +173,6 @@ class TSdoc:
         metadata = json.dumps(modified_document.metadata)
         new_pdf_data = bytes(modified_document.tobytes())
         save_modified_doc_to_db(metadata, new_pdf_data, steg_id)
-        base_name = os.path.basename(self.document.name)
-        new_name = f'{base_name[: base_name.find(".pdf")]}-signed.pdf'
-        return (new_pdf_data, new_name)
+        # base_name = os.path.basename(self.document.name)
+        # new_name = f'{base_name[: base_name.find(".pdf")]}-signed.pdf'
+        return (new_pdf_data, "signed.pdf")

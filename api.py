@@ -10,7 +10,17 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-    return render_template("index.html")
+    response = jsonify(
+        {
+            "message": """
+            Please use /generate or /verify to utilize this API
+            or
+            open this demo application <link>
+            """
+        }
+    )
+    response.status_code = 200
+    return response
 
 
 @app.route("/generate", methods=["POST"])
