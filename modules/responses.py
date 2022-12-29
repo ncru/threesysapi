@@ -20,14 +20,14 @@ def input_fail(type):
                     "message": "Invalid request"
                 }
             )
-            response.status_code = 406
+            response.status_code = 422
         case 1:
             response = jsonify(
                 {
                     "message": "Pdf size unacceptable"
                 }
             )
-            response.status_code = 406
+            response.status_code = 422
     return response
 
 
@@ -90,7 +90,7 @@ def verify_falsified():
             "message": "This is a falsified document."
         }
     )
-    response.status_code = 406
+    response.status_code = 422
     return response
 
 
