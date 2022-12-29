@@ -11,11 +11,13 @@ class TSdoc:
     # the dm-steg to be located (default is bottom right)
     def __init__(self, document, dm_steg_location=None):
         # string of the location where the user may or may not have defined where to put the steg dm
-        self.dm_steg_location = dm_steg_location
+        self.dm_steg_location = self.check_set_dm_steg_location(
+            dm_steg_location)
         # this is a fitz document object
         self.document = document
         # A boolean of if the document has already been previously signed by 3.Sys
-        self.already_signed = check_if_doc_is_already_prev_signed(self.document)
+        self.already_signed = check_if_doc_is_already_prev_signed(
+            self.document)
         # a list of all the document images (may be empty)
         self.images = self.grab_all_first_page_images()
         # a list of all dms derived from self.images (may be empty)
@@ -26,9 +28,7 @@ class TSdoc:
         # All 5 binary traits
         self.traits = {
             # True means margins are clean and can hold the dm steg as specified by  self.dm_steg_location, False otherwise
-            "margins": self.document_margins_passed()
-            if self.dm_steg_location
-            else True,
+            "margins": self.document_margins_passed() if self.dm_steg_location else True,
             "images": True if self.images else False,
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,
@@ -40,6 +40,13 @@ class TSdoc:
 
         if not self.traits["modified"] and self.dm_stegs:
             self.regular_dm_payload = read_dm_pylibdmtx(self.dm_stegs[0])
+
+    def check_set_dm_steg_location(location):
+        match location:
+            case "top-left" | "top-right" | "bottom-left" | "bottom-right":
+                return location
+            case _:
+                return "bottom-right"
 
     # mother function for checking if the margins of the document have enough
     # white pixel space for the dm-steg to be placed in.
@@ -134,7 +141,8 @@ class TSdoc:
         if not self.images:
             return []
         return list(
-            filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images)
+            filter(lambda img: True if read_dm_pylibdmtx(
+                img) else False, self.images)
         )
 
     # reads every collected dm from the document (if there are any) and checks to see
@@ -147,7 +155,8 @@ class TSdoc:
             return []
         return list(
             filter(
-                lambda img: True if read_steganography(img) else False, self.dm_images
+                lambda img: True if read_steganography(
+                    img) else False, self.dm_images
             )
         )
 
@@ -164,6 +173,6 @@ class TSdoc:
         metadata = json.dumps(modified_document.metadata)
         new_pdf_data = bytes(modified_document.tobytes())
         save_modified_doc_to_db(metadata, new_pdf_data, steg_id)
-        base_name = os.path.basename(modified_document.name)
+        base_name = os.path.basename(self.document.name)
         new_name = f'{base_name[: base_name.find(".pdf")]}-signed.pdf'
         return (new_pdf_data, new_name)

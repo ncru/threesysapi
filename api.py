@@ -33,7 +33,9 @@ def generate():
         request.form["location"] if "location" in request.form else "bottom-right"
     )
 
-    # initialize TSdoc, dm steg location is optional as it will default to bottom right
+    # initialize TSdoc, dm steg location is optional as it will default to bottom right.
+    # also, if the user fails to specify either top-left, top-right, bottom-left, bottom-right
+    # due to a typo, the api will default back to bottom-right
     ts_doc = TSdoc(document, dm_steg_location)
 
     # return str(ts_doc.__dict__)
