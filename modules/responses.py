@@ -17,7 +17,7 @@ def input_fail(type):
         case 0:
             response = jsonify(
                 {
-                    "message": "Invalid file type"
+                    "message": "Invalid request"
                 }
             )
             response.status_code = 406
