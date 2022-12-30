@@ -17,3 +17,5 @@ by using a two dimensional barcode called 'Data Matrix' as an electronic documen
 By incorporating Image Steganography into a Data Matrix image, we can obscure another message
 inside, aside from the encoded message of the Data Matrix.
 
+(c) 2022
+
