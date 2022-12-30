@@ -15,18 +15,10 @@ def default_route():
 def input_fail(type):
     match type:
         case 0:
-            response = jsonify(
-                {
-                    "message": "Invalid request"
-                }
-            )
+            response = jsonify({"message": "Invalid request"})
             response.status_code = 422
         case 1:
-            response = jsonify(
-                {
-                    "message": "Pdf size unacceptable"
-                }
-            )
+            response = jsonify({"message": "Pdf size unacceptable"})
             response.status_code = 422
     return response
 
@@ -44,12 +36,8 @@ def generate_pass(TSdoc):
 
 
 def generate_fail():
-    response = jsonify(
-        {
-            "message": "The document has been previously signed by 3.Sys."
-        }
-    )
-    response.status_code = 300
+    response = jsonify({"message": "The document has been previously signed by 3.Sys."})
+    response.status_code = 422
     return response
 
 
@@ -59,7 +47,7 @@ def generate_neutral():
             "message": "The document is already signed by 3.Sys. Document is possibly modified; use /verify to check if valid"
         }
     )
-    response.status_code = 300
+    response.status_code = 422
     return response
 
 
@@ -85,22 +73,14 @@ def verify_pass(TSdoc):
 
 
 def verify_falsified():
-    response = jsonify(
-        {
-            "message": "This is a falsified document."
-        }
-    )
+    response = jsonify({"message": "This is a falsified document."})
     response.status_code = 422
     return response
 
 
 def verify_fail():
-    response = jsonify(
-        {
-            "message": "This document has not gone through /generate"
-        }
-    )
-    response.status_code = 300
+    response = jsonify({"message": "This document has not gone through /generate"})
+    response.status_code = 422
     return response
 
 
@@ -110,7 +90,7 @@ def generate_if_hell(TSdoc):
     print(list(traits.values()))
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
-# fmt: off
+    # fmt: off
     match (traitsList):
         case    [1, 0, 0, 0, 0] | \
                 [1, 0, 0, 0, 1] | \
@@ -133,6 +113,8 @@ def generate_if_hell(TSdoc):
             return generate_neutral()
         case _:
             return generate_fail_margin()
+
+
 # fmt: on
 
 
@@ -142,7 +124,7 @@ def verify_if_hell(TSdoc):
     print(list(traits.values()))
     # turn your dicts to a binary list, for free!
     traitsList = [int(x) for x in list(traits.values())]
-# fmt: off
+    # fmt: off
     match (traitsList):
         case    [1, 0, 1, 1, 0] | \
                 [1, 0, 0, 1, 0] | \
@@ -168,4 +150,6 @@ def verify_if_hell(TSdoc):
 
         case _:
             return verify_fail()
+
+
 # fmt: on
