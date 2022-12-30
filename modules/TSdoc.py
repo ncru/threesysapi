@@ -9,7 +9,8 @@ from modules.threesys import *
 class TSdoc:
     # initialize GenereateTSdoc the 5 notable traits and the desired location for
     # the dm-steg to be located (default is bottom right)
-    def __init__(self, document, dm_steg_location=None):
+    def __init__(self, mode, document, dm_steg_location=None):
+        self.mode = mode
         # string of the location where the user may or may not have defined where to put the steg dm
         self.dm_steg_location = self.check_set_dm_steg_location(
             dm_steg_location)
@@ -28,7 +29,7 @@ class TSdoc:
         # All 5 binary traits
         self.traits = {
             # True means margins are clean and can hold the dm steg as specified by  self.dm_steg_location, False otherwise
-            "margins": self.document_margins_passed() if self.dm_steg_location else True,
+            "margins": self.document_margins_passed() if self.mode == "generate" else True,
             "images": True if self.images else False,
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,

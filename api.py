@@ -36,7 +36,7 @@ def generate():
     # initialize TSdoc, dm steg location is optional as it will default to bottom right.
     # also, if the user fails to specify either top-left, top-right, bottom-left, bottom-right
     # due to a typo, the api will default back to bottom-right
-    ts_doc = TSdoc(document, dm_steg_location)
+    ts_doc = TSdoc("generate", document, dm_steg_location)
 
     # return str(ts_doc.__dict__)
     return generate_if_hell(ts_doc)
@@ -49,10 +49,10 @@ def verify():
 
     # check if document is PDF
     if not document:
-        return "PDF ERROR"
+        return input_fail(0)
 
     # initialize TSdoc
-    ts_doc = TSdoc(document)
+    ts_doc = TSdoc("verify", document)
 
     # return str(ts_doc.__dict__)
     return verify_if_hell(ts_doc)
