@@ -153,7 +153,7 @@ def generate_message(metadata):
     now = datetime.datetime.now()
     author = metadata["author"]
     date_signed = f'{now.strftime("%B")} {now.day}, {now.year}'
-    return f"This document was signed using 3-sys API on {date_signed} and is owned by {author}"
+    return f"This document was signed using 3.Sys API on {date_signed} and is owned by {author}"
 
 
 # novel steganography function that uses LSB to hide the secret message in the last bits
