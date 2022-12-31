@@ -30,7 +30,7 @@ def generate_pass(TSdoc):
     if TSdoc.already_signed:
         return generate_fail()
     (new_pdf_data, new_pdf_file_name) = TSdoc.generate_dm_and_add_to_pdf()
-    base64_str = base64.b64encode(new_pdf_data.decode('utf-8'))
+    base64_str = base64.b64encode(new_pdf_data)
     response = jsonify({
         "signed_pdf_data": str(base64_str)
     })
