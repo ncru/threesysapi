@@ -32,7 +32,7 @@ def generate_pass(TSdoc):
     (new_pdf_data, new_pdf_file_name) = TSdoc.generate_dm_and_add_to_pdf()
     base64_str = base64.b64encode(new_pdf_data)
     response = jsonify({
-        "signed-pdf-data": str(base64_str)
+        "signed_pdf_data": str(base64_str)
     })
     # response = make_response(send_file(
     #     io.BytesIO(new_pdf_data),
