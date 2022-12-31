@@ -42,7 +42,7 @@ def generate():
     return generate_if_hell(ts_doc)
 
 
-@app.route("/verify", methods=["GET"])
+@app.route("/verify", methods=["POST"])
 def verify():
     # check request file and initialize fitz document object into memory from request if passed
     document = initialize_request(request)
