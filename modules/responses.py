@@ -40,6 +40,7 @@ def generate_pass(TSdoc):
     #     download_name=new_pdf_file_name,
     #     # as_attachment=True, auto download the file 'save as'
     # ))
+    response.status_code = 200
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
