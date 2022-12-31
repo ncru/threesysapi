@@ -9,8 +9,8 @@ def default_route():
             "message": "Please use /generate or /verify to utilize this API or open this demo application <link>"
         }
     )
-    response.headers.add('Access-Control-Allow-Origin', '*')
     response.status_code = 200
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
