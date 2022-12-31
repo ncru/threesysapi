@@ -1,5 +1,6 @@
 from flask import send_file, jsonify, make_response
 import io
+import base64
 
 
 def default_route():
@@ -29,8 +30,9 @@ def generate_pass(TSdoc):
     if TSdoc.already_signed:
         return generate_fail()
     (new_pdf_data, new_pdf_file_name) = TSdoc.generate_dm_and_add_to_pdf()
+    base64_str = base64.b64encode(new_pdf_data)
     response = jsonify({
-        "signed-pdf-data": io.BytesIO(new_pdf_data)
+        "signed-pdf-data": str(base64_str)
     })
     # response = make_response(send_file(
     #     io.BytesIO(new_pdf_data),
