@@ -29,12 +29,15 @@ def generate_pass(TSdoc):
     if TSdoc.already_signed:
         return generate_fail()
     (new_pdf_data, new_pdf_file_name) = TSdoc.generate_dm_and_add_to_pdf()
-    response = make_response(send_file(
-        io.BytesIO(new_pdf_data),
-        mimetype="application/pdf",
-        download_name=new_pdf_file_name,
-        # as_attachment=True, auto download the file 'save as'
-    ))
+    response = jsonify({
+        "signed-pdf-data": io.BytesIO(new_pdf_data)
+    })
+    # response = make_response(send_file(
+    #     io.BytesIO(new_pdf_data),
+    #     mimetype="application/pdf",
+    #     download_name=new_pdf_file_name,
+    #     # as_attachment=True, auto download the file 'save as'
+    # ))
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
