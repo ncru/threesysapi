@@ -48,14 +48,17 @@ def generate():
 @app.route("/verify", methods=["POST"])
 def verify():
     # check request file and initialize fitz document object into memory from request if passed
-    document = initialize_request(request)
+    result = initialize_request(request)
 
     # check if document is PDF
-    if not document:
+    if not result:
         return input_fail(0)
 
+    # deconstruct result tuple
+    (document, document_name) = result
+
     # initialize TSdoc
-    ts_doc = TSdoc("verify", document)
+    ts_doc = TSdoc("verify", document_name, document)
 
     # return str(ts_doc.__dict__)
     return verify_if_hell(ts_doc)
