@@ -16,11 +16,14 @@ def main():
 @app.route("/generate", methods=["POST"])
 def generate():
     # check request file and initialize fitz document object into memory from request if passed
-    (document, document_name) = initialize_request(request)
+    result = initialize_request(request)
 
     # check if document is PDF
-    if not document:
+    if not result:
         return input_fail(0)
+
+    # deconstruct result tuple
+    (document, document_name) = result
 
     dimensions_passed = check_document_dimensions(document)
 
