@@ -1,5 +1,5 @@
 # DM Steg API
-## In partial fulfillment of the requirements for: CSRP
+## In partial fulfillment of the requirements for: Computer Science Research Project
 
  Submitted by:
 
