@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from modules.TSdoc import *
 from modules.threesys import *
 from modules.responses import *
-from flask import Flask, render_template, request
+from flask import Flask, request
 from flask_cors import CORS
 
 load_dotenv()
