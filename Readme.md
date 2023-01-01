@@ -12,7 +12,7 @@
   
 
 This API was developed in the interest of preserving document validity. It does so
-by using a two dimensional barcode called 'Data Matrix' as an electronic document signature.
+by using a two dimensional barcode, called 'Data Matrix' as an electronic document signature.
 
 By incorporating Image Steganography into a Data Matrix image, we can obscure another message
 inside, aside from the encoded message of the Data Matrix.
