@@ -9,8 +9,9 @@ from modules.threesys import *
 class TSdoc:
     # initialize GenereateTSdoc the 5 notable traits and the desired location for
     # the dm-steg to be located (default is bottom right)
-    def __init__(self, mode, document, dm_steg_location=None):
+    def __init__(self, mode, document_name, document, dm_steg_location=None):
         self.mode = mode
+        self.document_name = document_name
         # string of the location where the user may or may not have defined where to put the steg dm
         self.dm_steg_location = self.check_set_dm_steg_location(
             dm_steg_location)
@@ -174,6 +175,5 @@ class TSdoc:
         metadata = json.dumps(modified_document.metadata)
         new_pdf_data = bytes(modified_document.tobytes())
         save_modified_doc_to_db(metadata, new_pdf_data, steg_id)
-        # base_name = os.path.basename(self.document.name)
-        # new_name = f'{base_name[: base_name.find(".pdf")]}-signed.pdf'
-        return (new_pdf_data, "signed.pdf")
+        new_name = f'{self.document_name [:self.document_name .find(".pdf")]}-signed.pdf'
+        return (new_pdf_data, new_name)

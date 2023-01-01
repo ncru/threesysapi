@@ -29,7 +29,7 @@ def initialize_request(req):
         return False
     file_stream = file.read()
     document = fitz.open(stream=file_stream, filetype="pdf")
-    return document
+    return (document, file.filename)
 
 
 # utility function for initialize_request_file which breaks down the name of a file

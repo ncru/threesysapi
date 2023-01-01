@@ -16,7 +16,7 @@ def main():
 @app.route("/generate", methods=["POST"])
 def generate():
     # check request file and initialize fitz document object into memory from request if passed
-    document = initialize_request(request)
+    (document, document_name) = initialize_request(request)
 
     # check if document is PDF
     if not document:
@@ -36,7 +36,7 @@ def generate():
     # initialize TSdoc, dm steg location is optional as it will default to bottom right.
     # also, if the user fails to specify either top-left, top-right, bottom-left, bottom-right
     # due to a typo, the api will default back to bottom-right
-    ts_doc = TSdoc("generate", document, dm_steg_location)
+    ts_doc = TSdoc("generate", document_name, document, dm_steg_location)
 
     # return str(ts_doc.__dict__)
     return generate_if_hell(ts_doc)
