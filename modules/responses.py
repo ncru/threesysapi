@@ -10,7 +10,7 @@ def default_route():
         }
     )
     response.status_code = 200
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
@@ -22,7 +22,7 @@ def input_fail(type):
         case 1:
             response = jsonify({"message": "Pdf size unacceptable"})
             response.status_code = 422
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
@@ -34,22 +34,23 @@ def generate_pass(TSdoc):
     # response = jsonify({
     #     "signed_pdf_data": str(base64_str)
     # })
-    response = make_response(send_file(
-        io.BytesIO(new_pdf_data),
-        mimetype="application/pdf",
-        download_name=new_pdf_file_name,
-        # as_attachment=True, auto download the file 'save as'
-    ))
+    response = make_response(
+        send_file(
+            io.BytesIO(new_pdf_data),
+            mimetype="application/pdf",
+            download_name=new_pdf_file_name,
+            # as_attachment=True, auto download the file 'save as'
+        )
+    )
     response.status_code = 200
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 def generate_fail():
-    response = jsonify(
-        {"message": "The document has been previously signed by 3.Sys."})
+    response = jsonify({"message": "The document has been previously signed by 3.Sys."})
     response.status_code = 422
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
@@ -60,7 +61,7 @@ def generate_neutral():
         }
     )
     response.status_code = 422
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
@@ -71,7 +72,7 @@ def generate_fail_margin():
         }
     )
     response.status_code = 400
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
@@ -83,22 +84,21 @@ def verify_pass(TSdoc):
         }
     )
     response.status_code = 200
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 def verify_falsified():
     response = jsonify({"message": "This is a falsified document."})
     response.status_code = 422
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
 def verify_fail():
-    response = jsonify(
-        {"message": "This document has not gone through /generate"})
+    response = jsonify({"message": "This document has not gone through /generate"})
     response.status_code = 422
-    response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 

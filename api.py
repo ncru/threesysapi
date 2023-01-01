@@ -3,9 +3,11 @@ from modules.TSdoc import *
 from modules.threesys import *
 from modules.responses import *
 from flask import Flask, render_template, request
+from flask_cors import CORS
 
 load_dotenv()
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
