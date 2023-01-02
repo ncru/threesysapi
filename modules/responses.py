@@ -43,7 +43,8 @@ def generate_pass(TSdoc):
 
 
 def generate_fail():
-    response = jsonify({"message": "The document has been previously signed by 3.Sys."})
+    response = jsonify(
+        {"message": "The document has been previously signed by 3.Sys."})
     response.status_code = 422
 
     return response
@@ -91,7 +92,8 @@ def verify_falsified():
 
 
 def verify_fail():
-    response = jsonify({"message": "This document has not gone through /generate"})
+    response = jsonify(
+        {"message": "This document has not gone through /generate"})
     response.status_code = 422
 
     return response
@@ -121,7 +123,9 @@ def generate_if_hell(TSdoc):
                 [1, 1, 1, 1, 0] | \
                 [1, 1, 1, 1, 1]: 
             return generate_fail()
-        case    [1, 0, 1, 1, 1] | \
+        case    [0, 1, 1, 1, 0] | \
+                [0, 1, 1, 1, 1] | \
+                [1, 0, 1, 1, 1] | \
                 [1, 1, 0, 1, 1]:
             return generate_neutral()
         case _:
