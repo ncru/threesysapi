@@ -126,7 +126,10 @@ def save_orig_doc_to_db(document_hash, document_bytes):
 # saves the modified document to the threesyspdf table in 3.Sys db
 def save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id):
     print("save_modified_doc_to_db")
-    QUERY = "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
+    print(new_pdf_hash)
+    QUERY = (
+        "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s);"
+    )
     try:
         connection = psycopg2.connect(url)
         with connection:
@@ -208,7 +211,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i: i + chunk_size]
+        binary_stream[i : i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
@@ -311,6 +314,6 @@ def check_if_document_is_modified(document_hash, dm_stegs):
 
 def get_hash_and_bytes_of_document(document):
     print("get_hash_of_document")
-    document_bytes = document.tobytes(no_new_id=True)
+    document_bytes = document.tobytes(garbage=4, no_new_id=True)
     document_hash = hashlib.sha256(document_bytes).hexdigest()
     return (document_hash, document_bytes)

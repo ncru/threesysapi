@@ -13,8 +13,7 @@ class TSdoc:
         self.mode = mode
         self.document_name = document_name
         # string of the location where the user may or may not have defined where to put the steg dm
-        self.dm_steg_location = self.check_set_dm_steg_location(
-            dm_steg_location)
+        self.dm_steg_location = self.check_set_dm_steg_location(dm_steg_location)
         # this is a fitz document object
         self.document = document
         # get hash and bytes of the document
@@ -146,8 +145,7 @@ class TSdoc:
         if not self.images:
             return []
         return list(
-            filter(lambda img: True if read_dm_pylibdmtx(
-                img) else False, self.images)
+            filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images)
         )
 
     # reads every collected dm from the document (if there are any) and checks to see
@@ -160,8 +158,7 @@ class TSdoc:
             return []
         return list(
             filter(
-                lambda img: True if read_steganography(
-                    img) else False, self.dm_images
+                lambda img: True if read_steganography(img) else False, self.dm_images
             )
         )
 
@@ -176,9 +173,8 @@ class TSdoc:
             self.document, steg_dm, self.dm_steg_location
         )
         (new_pdf_hash, new_pdf_bytes) = get_hash_and_bytes_of_document(
-            modified_document)
-        save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id)
-        new_name = (
-            f'{self.document_name [:self.document_name.find(".pdf")]}-signed.pdf'
+            modified_document
         )
+        save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id)
+        new_name = f'{self.document_name [:self.document_name.find(".pdf")]}-signed.pdf'
         return (new_pdf_bytes, new_name)
