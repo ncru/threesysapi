@@ -9,6 +9,7 @@ import treepoem
 import datetime
 import io
 import math
+import hashlib
 
 
 ALLOWED_EXTENSIONS = {"pdf"}
@@ -40,17 +41,17 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# function that ensures that the metadata of the document isn't empty. This must be done
-# because the API makes use of metadata to check validity
-def check_document_metadata(document):
-    print("check_document_metadata")
-    metadata = document.metadata
-    author = metadata["author"]
-    creation_date = metadata["creationDate"]
-    mod_date = metadata["modDate"]
-    if not author or not creation_date or not mod_date:
-        return False
-    return True
+# # function that ensures that the metadata of the document isn't empty. This must be done
+# # because the API makes use of metadata to check validity
+# def check_document_metadata(document):
+#     print("check_document_metadata")
+#     metadata = document.metadata
+#     author = metadata["author"]
+#     creation_date = metadata["creationDate"]
+#     mod_date = metadata["modDate"]
+#     if not author or not creation_date or not mod_date:
+#         return False
+#     return True
 
 
 # checks if document has enough space for 1 inch defined margins. The limit variable
@@ -106,16 +107,15 @@ def read_steganography(image):
 
 # saves the document to the origpdfs table in 3.Sys db and returns the
 # id of that generated row
-def save_orig_doc_to_db(document):
+def save_orig_doc_to_db(document, document_hash):
     print("save_orig_doc_to_db")
-    orig_pdf_data = bytes(document.tobytes())
-    orig_pdf_metadata = json.dumps(document.metadata)
-    QUERY = "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_metadata) VALUES (%s, %s) RETURNING orig_id;"
+    orig_pdf_data = document.tobytes()
+    QUERY = "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_hash) VALUES (%s, %s) RETURNING orig_id;"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (orig_pdf_data, orig_pdf_metadata))
+                cursor.execute(QUERY, (orig_pdf_data, document_hash))
                 return cursor.fetchone()[0]
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
@@ -126,14 +126,14 @@ def save_orig_doc_to_db(document):
 
 
 # saves the modified document to the threesyspdf table in 3.Sys db
-def save_modified_doc_to_db(metadata, new_pdf_data, steg_id):
+def save_modified_doc_to_db(document_hash, new_pdf_data, steg_id):
     print("save_modified_doc_to_db")
-    QUERY = "INSERT INTO threesyspdfs (pdf_metadata, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
+    QUERY = "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (metadata, new_pdf_data, steg_id))
+                cursor.execute(QUERY, (document_hash, new_pdf_data, steg_id))
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
     finally:
@@ -164,7 +164,7 @@ def generate_dm(pdf_file):
 def generate_message(metadata):
     print("generate_message")
     now = datetime.datetime.now()
-    author = metadata["author"]
+    author = metadata["author"] if metadata["author"] else "anonymous"
     date_signed = f'{now.strftime("%B")} {now.day}, {now.year}'
     return f"This document was signed using 3.Sys API on {date_signed} and is owned by {author}"
 
@@ -251,23 +251,14 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
 
 # checks if whether or not the input (unsigned) document has already been previously
 # signed by a 3.Sys signature.
-def check_if_doc_is_already_prev_signed(document):
+def check_if_doc_is_already_prev_signed(document_hash):
     print('check_if_doc_is_already_prev_signed')
-    document_metadata = document.metadata
-    author = document_metadata["author"]
-    creation_date = document_metadata["creationDate"]
-    mod_date = document_metadata["modDate"]
-    QUERY = "SELECT orig_pdf_metadata -> 'author' AS author, orig_pdf_metadata -> 'creationDate' AS creationdate, orig_pdf_metadata -> 'modDate' AS moddate FROM origpdfs WHERE orig_pdf_metadata ->> 'author' = %s AND orig_pdf_metadata ->> 'creationDate' = %s AND orig_pdf_metadata ->> 'modDate' = %s"
+    QUERY = "SELECT * FROM origpdfs WHERE orig_pdf_hash = (%s);"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (author, creation_date, mod_date))
-        print("document_metadata:", document_metadata)
-        print("author:", author)
-        print("creation_date:", creation_date)
-        print("mod_date:", mod_date)
-        print("sign status:", cursor.rowcount > 0)
+                cursor.execute(QUERY, (document_hash,))
         return cursor.rowcount > 0
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
@@ -278,14 +269,13 @@ def check_if_doc_is_already_prev_signed(document):
 
 
 # defines if whether or not the document has been modifed
-def check_if_document_is_modified(document, dm_stegs):
-    print("check_if_document_is_modified")
+def check_if_document_is_modified(document_hash, dm_stegs):
+    print("check☺_if_document_is_modified")
     if len(dm_stegs) != 1:
         return True
     dm_steg = dm_stegs[0]
-    QUERY = "SELECT * FROM threesyspdfs WHERE origpdfs_id = (%s);"
     steg_msg = read_steganography(dm_steg)
-    metadata = document.metadata
+    QUERY = "SELECT * FROM threesyspdfs WHERE origpdfs_id = (%s);"
     try:
         connection = psycopg2.connect(url)
         with connection:
@@ -294,11 +284,11 @@ def check_if_document_is_modified(document, dm_stegs):
                 if cursor.rowcount > 0:
                     (
                         rpdf_id,
-                        rpdf_metadata,
+                        rpdf_hash,
                         rpdf_data,
                         rorigpdfs_id,
                     ) = cursor.fetchall()[0]
-                    return not metadata == rpdf_metadata
+                    return not document_hash == rpdf_hash
                 else:
                     return True
     except (Exception, Error) as error:
@@ -307,3 +297,9 @@ def check_if_document_is_modified(document, dm_stegs):
         if connection:
             cursor.close()
             connection.close()
+
+
+def get_hash_of_document(document):
+    document_bytes = document.tobytes(no_new_id=True)
+    docu_hash = hashlib.sha256(document_bytes).hexdigest()
+    return docu_hash

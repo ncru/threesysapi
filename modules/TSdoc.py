@@ -17,6 +17,8 @@ class TSdoc:
             dm_steg_location)
         # this is a fitz document object
         self.document = document
+        # get a hash of the document
+        self.hash = get_hash_of_document(self.document)
         # A boolean of if the document has already been previously signed by 3.Sys
         self.already_signed = check_if_doc_is_already_prev_signed(
             self.document)
@@ -35,7 +37,7 @@ class TSdoc:
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,
             # this is set to default False as it will only be determined by the /verify endpoint
-            "modified": check_if_document_is_modified(self.document, self.dm_stegs)
+            "modified": check_if_document_is_modified(self.hash, self.dm_stegs)
             if self.dm_stegs
             else False,
         }
@@ -172,8 +174,7 @@ class TSdoc:
         modified_document = put_steg_dm_in_pdf(
             self.document, steg_dm, self.dm_steg_location
         )
-        metadata = json.dumps(modified_document.metadata)
         new_pdf_data = bytes(modified_document.tobytes())
-        save_modified_doc_to_db(metadata, new_pdf_data, steg_id)
+        save_modified_doc_to_db(self.hash, new_pdf_data, steg_id)
         new_name = f'{self.document_name [:self.document_name .find(".pdf")]}-signed.pdf'
         return (new_pdf_data, new_name)

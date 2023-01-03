@@ -27,10 +27,10 @@ def generate():
     # deconstruct result tuple
     (document, document_name) = result
 
-    # check if the document has the required metadata
-    rendered_properly = check_document_metadata(document)
-    if not rendered_properly:
-        return input_fail(1)
+    # # check if the document has the required metadata
+    # rendered_properly = check_document_metadata(document)
+    # if not rendered_properly:
+    #     return input_fail(1)
 
     # check if document is big enough for 1 inch margins
     dimensions_passed = check_document_dimensions(document)
@@ -63,10 +63,10 @@ def verify():
     # deconstruct result tuple
     (document, document_name) = result
 
-    # check if the document has the required metadata
-    rendered_properly = check_document_metadata(document)
-    if not rendered_properly:
-        return input_fail(1)
+    # # check if the document has the required metadata
+    # rendered_properly = check_document_metadata(document)
+    # if not rendered_properly:
+    #     return input_fail(1)
 
     # initialize TSdoc
     ts_doc = TSdoc("verify", document_name, document)
