@@ -106,15 +106,14 @@ def read_steganography(image):
 
 # saves the document to the origpdfs table in 3.Sys db and returns the
 # id of that generated row
-def save_orig_doc_to_db(document, document_hash):
+def save_orig_doc_to_db(document_hash, document_bytes):
     print("save_orig_doc_to_db")
-    orig_pdf_data = document.tobytes()
     QUERY = "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_hash) VALUES (%s, %s) RETURNING orig_id;"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (orig_pdf_data, document_hash))
+                cursor.execute(QUERY, (document_bytes, document_hash))
                 return cursor.fetchone()[0]
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
@@ -125,15 +124,14 @@ def save_orig_doc_to_db(document, document_hash):
 
 
 # saves the modified document to the threesyspdf table in 3.Sys db
-def save_modified_doc_to_db(new_pdf_data, steg_id):
+def save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id):
     print("save_modified_doc_to_db")
-    modified_document_hash = hashlib.sha256(new_pdf_data).hexdigest()
     QUERY = "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (modified_document_hash, new_pdf_data, steg_id))
+                cursor.execute(QUERY, (new_pdf_hash, new_pdf_bytes, steg_id))
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
     finally:
@@ -210,7 +208,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
@@ -311,8 +309,8 @@ def check_if_document_is_modified(document_hash, dm_stegs):
             connection.close()
 
 
-def get_hash_of_document(document):
+def get_hash_and_bytes_of_document(document):
     print("get_hash_of_document")
     document_bytes = document.tobytes(no_new_id=True)
     docu_hash = hashlib.sha256(document_bytes).hexdigest()
-    return docu_hash
+    return (docu_hash, document_bytes)
