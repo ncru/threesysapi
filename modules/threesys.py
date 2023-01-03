@@ -133,8 +133,7 @@ def save_modified_doc_to_db(new_pdf_data, steg_id):
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(
-                    QUERY, (modified_document_hash, new_pdf_data, steg_id))
+                cursor.execute(QUERY, (modified_document_hash, new_pdf_data, steg_id))
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
     finally:
@@ -211,7 +210,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i: i + chunk_size]
+        binary_stream[i : i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
@@ -283,7 +282,7 @@ def check_if_doc_is_already_prev_signed(document_hash):
 
 # defines if whether or not the document has been modifed
 def check_if_document_is_modified(document_hash, dm_stegs):
-    print("check☺_if_document_is_modified")
+    print("check_if_document_is_modified")
     if len(dm_stegs) != 1:
         return True
     dm_steg = dm_stegs[0]

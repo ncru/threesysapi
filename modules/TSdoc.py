@@ -172,8 +172,8 @@ class TSdoc:
         modified_document = put_steg_dm_in_pdf(
             self.document, steg_dm, self.dm_steg_location
         )
-        new_pdf_data = bytes(modified_document.tobytes())
-        save_modified_doc_to_db(self.hash, new_pdf_data, steg_id)
+        new_pdf_data = modified_document.tobytes(no_new_id=True)
+        save_modified_doc_to_db(new_pdf_data, steg_id)
         new_name = (
             f'{self.document_name [:self.document_name .find(".pdf")]}-signed.pdf'
         )
