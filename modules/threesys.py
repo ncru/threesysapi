@@ -312,5 +312,5 @@ def check_if_document_is_modified(document_hash, dm_stegs):
 def get_hash_and_bytes_of_document(document):
     print("get_hash_of_document")
     document_bytes = document.tobytes(no_new_id=True)
-    docu_hash = hashlib.sha256(document_bytes).hexdigest()
-    return (docu_hash, document_bytes)
+    document_hash = hashlib.sha256(document_bytes).hexdigest()
+    return (document_hash, document_bytes)
