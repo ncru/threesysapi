@@ -40,6 +40,19 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# function that ensures that the metadata of the document isn't empty. This must be done
+# because the API makes use of metadata to check validity
+def check_document_metadata(document):
+    print("check_document_metadata")
+    metadata = document.metadata
+    author = metadata["author"]
+    creation_date = metadata["creationDate"]
+    mod_date = metadata["modDate"]
+    if not author or not creation_date or not mod_date:
+        return False
+    return True
+
+
 # checks if document has enough space for 1 inch defined margins. The limit variable
 # is defined by 2 times an inch (1 inch = 72 pixels for 72 ppi document which is the
 # standard)
@@ -250,7 +263,11 @@ def check_if_doc_is_already_prev_signed(document):
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(QUERY, (author, creation_date, mod_date))
-        print("sign status", cursor.rowcount > 0)
+        print("document_metadata:", document_metadata)
+        print("author:", author)
+        print("creation_date:", creation_date)
+        print("mod_date:", mod_date)
+        print("sign status:", cursor.rowcount > 0)
         return cursor.rowcount > 0
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
