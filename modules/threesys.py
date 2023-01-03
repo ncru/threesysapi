@@ -259,6 +259,15 @@ def check_if_doc_is_already_prev_signed(document_hash):
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(QUERY, (document_hash,))
+                if cursor.rowcount > 0:
+                    (
+                        origpdf_id,
+                        origpdf_hash,
+                        origpdf_data,
+                    ) = cursor.fetchall()[0]
+        print("Curr hash:", document_hash)
+        print("Db hash:", origpdf_hash)
+        print("Sign status:", cursor.rowcount > 0)
         return cursor.rowcount > 0
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
