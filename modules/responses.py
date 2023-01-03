@@ -20,7 +20,7 @@ def input_fail(type):
             response.status_code = 422
         case 1:
             response = jsonify(
-                {"message": "The Pdf originates from an unknown generator. It has no viable metadata."})
+                {"message": "The Pdf originates from an unknown generator. It has no viable metadata. It is recommended for the Pdf to be created using Adobe Acrobat or Microsoft Office."})
             response.status_code = 422
         case 2:
             response = jsonify({"message": "Pdf size unacceptable"})
