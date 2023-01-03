@@ -125,14 +125,16 @@ def save_orig_doc_to_db(document, document_hash):
 
 
 # saves the modified document to the threesyspdf table in 3.Sys db
-def save_modified_doc_to_db(document_hash, new_pdf_data, steg_id):
+def save_modified_doc_to_db(new_pdf_data, steg_id):
     print("save_modified_doc_to_db")
+    modified_document_hash = hashlib.sha256(new_pdf_data).hexdigest()
     QUERY = "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s) RETURNING *;"
     try:
         connection = psycopg2.connect(url)
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(QUERY, (document_hash, new_pdf_data, steg_id))
+                cursor.execute(
+                    QUERY, (modified_document_hash, new_pdf_data, steg_id))
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
     finally:
@@ -209,7 +211,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
