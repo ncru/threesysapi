@@ -13,15 +13,13 @@ class TSdoc:
         self.mode = mode
         self.document_name = document_name
         # string of the location where the user may or may not have defined where to put the steg dm
-        self.dm_steg_location = self.check_set_dm_steg_location(
-            dm_steg_location)
+        self.dm_steg_location = self.check_set_dm_steg_location(dm_steg_location)
         # this is a fitz document object
         self.document = document
         # get a hash of the document
         self.hash = get_hash_of_document(self.document)
         # A boolean of if the document has already been previously signed by 3.Sys
-        self.already_signed = check_if_doc_is_already_prev_signed(
-            self.document)
+        self.already_signed = check_if_doc_is_already_prev_signed(self.hash)
         # a list of all the document images (may be empty)
         self.images = self.grab_all_first_page_images()
         # a list of all dms derived from self.images (may be empty)
@@ -32,7 +30,9 @@ class TSdoc:
         # All 5 binary traits
         self.traits = {
             # True means margins are clean and can hold the dm steg as specified by  self.dm_steg_location, False otherwise
-            "margins": self.document_margins_passed() if self.mode == "generate" else True,
+            "margins": self.document_margins_passed()
+            if self.mode == "generate"
+            else True,
             "images": True if self.images else False,
             "dm_images": True if self.dm_images else False,
             "dm_steg": True if self.dm_stegs else False,
@@ -145,8 +145,7 @@ class TSdoc:
         if not self.images:
             return []
         return list(
-            filter(lambda img: True if read_dm_pylibdmtx(
-                img) else False, self.images)
+            filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images)
         )
 
     # reads every collected dm from the document (if there are any) and checks to see
@@ -159,8 +158,7 @@ class TSdoc:
             return []
         return list(
             filter(
-                lambda img: True if read_steganography(
-                    img) else False, self.dm_images
+                lambda img: True if read_steganography(img) else False, self.dm_images
             )
         )
 
@@ -168,7 +166,7 @@ class TSdoc:
 
     def generate_dm_and_add_to_pdf(self):
         print("generate_dm_and_add_to_pdf")
-        steg_id = save_orig_doc_to_db(self.document)
+        steg_id = save_orig_doc_to_db(self.document, self.hash)
         ord_dm = generate_dm(self.document)
         steg_dm = steganography(ord_dm, str(steg_id))
         modified_document = put_steg_dm_in_pdf(
@@ -176,5 +174,7 @@ class TSdoc:
         )
         new_pdf_data = bytes(modified_document.tobytes())
         save_modified_doc_to_db(self.hash, new_pdf_data, steg_id)
-        new_name = f'{self.document_name [:self.document_name .find(".pdf")]}-signed.pdf'
+        new_name = (
+            f'{self.document_name [:self.document_name .find(".pdf")]}-signed.pdf'
+        )
         return (new_pdf_data, new_name)

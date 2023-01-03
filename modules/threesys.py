@@ -1,4 +1,3 @@
-
 import fitz
 from pylibdmtx.pylibdmtx import decode as pylibdmtx_decode
 import os
@@ -209,7 +208,10 @@ def msg_to_binary_stream(str):
 # define chunks
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
-    return [binary_stream[i: i + chunk_size] for i in range(0, len(binary_stream), chunk_size)]
+    return [
+        binary_stream[i : i + chunk_size]
+        for i in range(0, len(binary_stream), chunk_size)
+    ]
 
 
 # attaches generated steg dms to the specified location on the document
@@ -220,7 +222,7 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     (_x, _y, page_width, page_height) = first_page.rect
 
     match dm_steg_location:
-        case 'top-left':
+        case "top-left":
             x1 = allowance
             y1 = allowance
             x2 = dm_width + allowance
@@ -252,7 +254,7 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
 # checks if whether or not the input (unsigned) document has already been previously
 # signed by a 3.Sys signature.
 def check_if_doc_is_already_prev_signed(document_hash):
-    print('check_if_doc_is_already_prev_signed')
+    print("check_if_doc_is_already_prev_signed")
     QUERY = "SELECT * FROM origpdfs WHERE orig_pdf_hash = (%s);"
     try:
         connection = psycopg2.connect(url)
@@ -265,8 +267,8 @@ def check_if_doc_is_already_prev_signed(document_hash):
                         origpdf_hash,
                         origpdf_data,
                     ) = cursor.fetchall()[0]
+                    print("Db hash:", origpdf_hash)
         print("Curr hash:", document_hash)
-        print("Db hash:", origpdf_hash)
         print("Sign status:", cursor.rowcount > 0)
         return cursor.rowcount > 0
     except (Exception, Error) as error:
@@ -309,6 +311,7 @@ def check_if_document_is_modified(document_hash, dm_stegs):
 
 
 def get_hash_of_document(document):
+    print("get_hash_of_document")
     document_bytes = document.tobytes(no_new_id=True)
     docu_hash = hashlib.sha256(document_bytes).hexdigest()
     return docu_hash
