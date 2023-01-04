@@ -97,7 +97,6 @@ class TSdoc:
 
             image_bytes = pix.tobytes()
             image = Image.open(io.BytesIO(image_bytes))
-            image = image.convert("RGB")
             images.append(image)
         return images
 
