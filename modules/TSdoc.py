@@ -66,18 +66,18 @@ class TSdoc:
         page_height = page.rect.height
         match self.dm_steg_location:
             case "top-left":
+                corner = fitz.Rect(0, 0, padded_dm, padded_dm)
+            case "top-right":
+                corner = fitz.Rect(page_width - padded_dm, 0, page_width, padded_dm)
+            case "bottom-left":
+                corner = fitz.Rect(0, page_height - padded_dm, padded_dm, page_height)
+            case "bottom-right":
                 corner = fitz.Rect(
                     page_width - padded_dm,
                     page_height - padded_dm,
                     page_width,
                     page_height,
                 )
-            case "top-right":
-                corner = fitz.Rect(page_width - padded_dm, 0, page_width, padded_dm)
-            case "bottom-left":
-                corner = fitz.Rect(0, page_height - padded_dm, padded_dm, page_height)
-            case "bottom-right":
-                corner = fitz.Rect(0, 0, padded_dm, padded_dm)
 
         dm_area = page.get_pixmap(clip=corner)
         return dm_area.is_unicolor
