@@ -246,9 +246,9 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
             y2 = page_height - allowance
 
     rect = (x1, y1, x2, y2)
-    byteIO = await io.BytesIO()
+    byteIO = io.BytesIO()
     steg_dm.save(byteIO, format="PNG")
-    img_bytes = await byteIO.getvalue()
+    img_bytes = byteIO.getvalue()
     first_page.insert_image(rect, stream=img_bytes)
     return pdf_file
 
