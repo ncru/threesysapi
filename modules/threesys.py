@@ -211,13 +211,13 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
 
 # attaches generated steg dms to the specified location on the document
-def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
+async def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     print("put_steg_dm_in_pdf")
     dm_width = (72 - (2 * allowance)) / 2  # for a half inch sized dm
     first_page = pdf_file[0]
@@ -246,9 +246,9 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
             y2 = page_height - allowance
 
     rect = (x1, y1, x2, y2)
-    byteIO = io.BytesIO()
+    byteIO = await io.BytesIO()
     steg_dm.save(byteIO, format="PNG")
-    img_bytes = byteIO.getvalue()
+    img_bytes = await byteIO.getvalue()
     first_page.insert_image(rect, stream=img_bytes)
     return pdf_file
 
@@ -312,7 +312,7 @@ def check_if_document_is_modified(document_hash, dm_stegs):
             connection.close()
 
 
-def get_hash_and_bytes_of_document(document):
+async def get_hash_and_bytes_of_document(document):
     print("get_hash_of_document")
     document_bytes = document.tobytes(garbage=4, no_new_id=True)
     document_hash = hashlib.sha256(document_bytes).hexdigest()
