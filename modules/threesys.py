@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"pdf"}
 url = os.getenv("DATABASE_URL")
-allowance = 3
+allowance = 5
 
 
 # checks the request file if it is a pdf. If it is, then it is read into
@@ -212,7 +212,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i: i + chunk_size]
+        binary_stream[i : i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
@@ -220,7 +220,7 @@ def chunkify(binary_stream, chunk_size):
 # attaches generated steg dms to the specified location on the document
 def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     print("put_steg_dm_in_pdf")
-    dm_width = (72 - (2 * allowance)) / 2  # for a half inch sized dm
+    dm_width = (72 - (2 * allowance)) / 3  # for a half inch sized dm
     first_page = pdf_file[0]
     (_x, _y, page_width, page_height) = first_page.rect
 
