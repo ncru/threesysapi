@@ -1,7 +1,7 @@
 # DM Steg API
 ## In partial fulfillment of the requirements for: Computer Science Research Project
 
- Submitted by:
+Submitted by:
 
 ### Don Franco Ramos
 
