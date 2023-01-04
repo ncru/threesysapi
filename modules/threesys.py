@@ -9,6 +9,7 @@ import datetime
 import io
 import math
 import hashlib
+from werkzeug.utils import secure_filename
 
 
 ALLOWED_EXTENSIONS = {"pdf"}
@@ -29,7 +30,7 @@ def initialize_request(req):
         return False
     file_stream = file.read()
     document = fitz.open(stream=file_stream, filetype="pdf")
-    return (document, file.filename)
+    return (document, secure_filename(file.filename))
 
 
 # utility function for initialize_request_file which breaks down the name of a file
