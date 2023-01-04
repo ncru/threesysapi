@@ -217,7 +217,7 @@ def chunkify(binary_stream, chunk_size):
 
 
 # attaches generated steg dms to the specified location on the document
-async def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
+def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     print("put_steg_dm_in_pdf")
     dm_width = (72 - (2 * allowance)) / 2  # for a half inch sized dm
     first_page = pdf_file[0]
@@ -312,7 +312,7 @@ def check_if_document_is_modified(document_hash, dm_stegs):
             connection.close()
 
 
-async def get_hash_and_bytes_of_document(document):
+def get_hash_and_bytes_of_document(document):
     print("get_hash_of_document")
     document_bytes = document.tobytes(garbage=4, no_new_id=True)
     document_hash = hashlib.sha256(document_bytes).hexdigest()
