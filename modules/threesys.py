@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"pdf"}
 url = os.getenv("DATABASE_URL")
-allowance = 5
+allowance = 2
 
 
 # checks the request file if it is a pdf. If it is, then it is read into
