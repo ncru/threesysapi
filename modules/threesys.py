@@ -14,7 +14,10 @@ from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"pdf"}
 url = os.getenv("DATABASE_URL")
+inch = 72
 allowance = 2
+dm_width = (inch - (2 * allowance)) / 3
+padded_dm = dm_width + (2 * allowance)
 
 
 # checks the request file if it is a pdf. If it is, then it is read into
@@ -212,7 +215,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
@@ -220,31 +223,55 @@ def chunkify(binary_stream, chunk_size):
 # attaches generated steg dms to the specified location on the document
 def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
     print("put_steg_dm_in_pdf")
-    dm_width = (72 - (2 * allowance)) / 3  # for a half inch sized dm
     first_page = pdf_file[0]
-    (_x, _y, page_width, page_height) = first_page.rect
-
-    match dm_steg_location:
-        case "top-left":
-            x1 = allowance
-            y1 = allowance
-            x2 = dm_width + allowance
-            y2 = dm_width + allowance
-        case "top-right":
-            x1 = page_width - dm_width - allowance
-            y1 = allowance
-            x2 = page_width - allowance
-            y2 = allowance + dm_width
-        case "bottom-left":
-            x1 = allowance
-            y1 = page_height - dm_width - allowance
-            x2 = allowance + dm_width
-            y2 = page_height - allowance
-        case "bottom-right":
-            x1 = page_width - dm_width - allowance
-            y1 = page_height - dm_width - allowance
-            x2 = page_width - allowance
-            y2 = page_height - allowance
+    page_width = first_page.rect.width
+    page_height = first_page.rect.height
+    # google docs is weird with rect
+    if "Google Docs" in pdf_file.metadata["producer"]:
+        print("the document is from google docs. inverting dm locations")
+        match dm_steg_location:
+            case "top-left":
+                x1 = allowance
+                y1 = page_height - dm_width - allowance
+                x2 = allowance + dm_width
+                y2 = page_height - allowance
+            case "top-right":
+                x1 = page_width - dm_width - allowance
+                y1 = page_height - dm_width - allowance
+                x2 = page_width - allowance
+                y2 = page_height - allowance
+            case "bottom-left":
+                x1 = allowance
+                y1 = allowance
+                x2 = dm_width + allowance
+                y2 = dm_width + allowance
+            case "bottom-right":
+                x1 = page_width - dm_width - allowance
+                y1 = allowance
+                x2 = page_width - allowance
+                y2 = allowance + dm_width
+    else:
+        match dm_steg_location:
+            case "top-left":
+                x1 = allowance
+                y1 = allowance
+                x2 = dm_width + allowance
+                y2 = dm_width + allowance
+            case "top-right":
+                x1 = page_width - dm_width - allowance
+                y1 = allowance
+                x2 = page_width - allowance
+                y2 = allowance + dm_width
+            case "bottom-left":
+                x1 = allowance
+                y1 = page_height - dm_width - allowance
+                x2 = allowance + dm_width
+                y2 = page_height - allowance
+            case "bottom-right":
+                x1 = page_width - dm_width - allowance
+                y1 = page_height - dm_width - allowance
+                x2 = page_width - allowance
+                y2 = page_height - allowance
 
     rect = (x1, y1, x2, y2)
     byteIO = io.BytesIO()

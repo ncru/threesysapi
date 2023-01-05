@@ -13,7 +13,8 @@ class TSdoc:
         self.mode = mode
         self.document_name = document_name
         # string of the location where the user may or may not have defined where to put the steg dm
-        self.dm_steg_location = self.check_set_dm_steg_location(dm_steg_location)
+        self.dm_steg_location = self.check_set_dm_steg_location(
+            dm_steg_location)
         # this is a fitz document object
         self.document = document
         # get hash and bytes of the document
@@ -56,21 +57,18 @@ class TSdoc:
     # white pixel space for the dm-steg to be placed in.
     def document_margins_passed(self):
         print("document_margins_passed")
-        inch = 72
         page = self.document[0]
-
-        dm_width = 72 - (2 * allowance)
-        padded_dm = dm_width + (2 * allowance)
-
         page_width = page.rect.width
         page_height = page.rect.height
         match self.dm_steg_location:
             case "top-left":
                 corner = fitz.Rect(0, 0, padded_dm, padded_dm)
             case "top-right":
-                corner = fitz.Rect(page_width - padded_dm, 0, page_width, padded_dm)
+                corner = fitz.Rect(page_width - padded_dm,
+                                   0, page_width, padded_dm)
             case "bottom-left":
-                corner = fitz.Rect(0, page_height - padded_dm, padded_dm, page_height)
+                corner = fitz.Rect(0, page_height - padded_dm,
+                                   padded_dm, page_height)
             case "bottom-right":
                 corner = fitz.Rect(
                     page_width - padded_dm,
@@ -106,7 +104,8 @@ class TSdoc:
         if not self.images:
             return []
         return list(
-            filter(lambda img: True if read_dm_pylibdmtx(img) else False, self.images)
+            filter(lambda img: True if read_dm_pylibdmtx(
+                img) else False, self.images)
         )
 
     # reads every collected dm from the document (if there are any) and checks to see
@@ -119,7 +118,8 @@ class TSdoc:
             return []
         return list(
             filter(
-                lambda img: True if read_steganography(img) else False, self.dm_images
+                lambda img: True if read_steganography(
+                    img) else False, self.dm_images
             )
         )
 
