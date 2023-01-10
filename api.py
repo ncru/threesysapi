@@ -27,15 +27,10 @@ def generate():
     # deconstruct result tuple
     (document, document_name) = result
 
-    # # check if the document has the required metadata
-    # rendered_properly = check_document_metadata(document)
-    # if not rendered_properly:
-    #     return input_fail(1)
-
     # check if document is big enough for 1 inch margins
     dimensions_passed = check_document_dimensions(document)
     if not dimensions_passed:
-        return input_fail(2)
+        return input_fail(1)
 
     # check to see if the dm location parameter is set. If not then default to bottom right
     dm_steg_location = (
@@ -48,7 +43,7 @@ def generate():
     ts_doc = TSdoc("generate", document_name, document, dm_steg_location)
 
     # return str(ts_doc.__dict__)
-    return generate_if_hell(ts_doc)
+    return generate_decision(ts_doc)
 
 
 @app.route("/verify", methods=["POST"])
@@ -63,16 +58,11 @@ def verify():
     # deconstruct result tuple
     (document, document_name) = result
 
-    # # check if the document has the required metadata
-    # rendered_properly = check_document_metadata(document)
-    # if not rendered_properly:
-    #     return input_fail(1)
-
     # initialize TSdoc
     ts_doc = TSdoc("verify", document_name, document)
 
     # return str(ts_doc.__dict__)
-    return verify_if_hell(ts_doc)
+    return verify_decision(ts_doc)
 
 
 if __name__ == "__main__":

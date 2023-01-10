@@ -23,7 +23,7 @@ padded_dm = dm_width + (2 * allowance)
 # checks the request file if it is a pdf. If it is, then it is read into
 # memory for api manipulation
 def initialize_request(req):
-    print("initialize_request")
+    # print("initialize_request")
     file = req.files["file"]
     if (
         "file" not in req.files
@@ -40,7 +40,7 @@ def initialize_request(req):
 # to derive its file type and returns if whether or not the file is a file type contained
 # within ALLOWED_EXTENSIONS
 def allowed_file(filename):
-    print("allowed_file")
+    # print("allowed_file")
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -61,7 +61,7 @@ def allowed_file(filename):
 # is defined by 2 times an inch (1 inch = 72 pixels for 72 ppi document which is the
 # standard)
 def check_document_dimensions(document):
-    print("check_document_dimensions")
+    # print("check_document_dimensions")
     limit = 72 * 2
     for page in document:
         page_width = math.floor(page.rect.width)
@@ -73,7 +73,7 @@ def check_document_dimensions(document):
 
 # reads the regular payload of the dm
 def read_dm_pylibdmtx(image):
-    print("read_dm_pylibdmtx")
+    # print("read_dm_pylibdmtx")
     image_width, image_height = image.size
     if image_width > 350 and image_height > 350:
         return ""
@@ -86,7 +86,7 @@ def read_dm_pylibdmtx(image):
 
 # novel algorithm which reads 3.Sys steganography
 def read_steganography(image):
-    print("read_steganography")
+    # print("read_steganography")
     chunk_size = 2
     width, height = image.size
     image_map = image.load()
@@ -111,7 +111,7 @@ def read_steganography(image):
 # saves the document to the origpdfs table in 3.Sys db and returns the
 # id of that generated row
 def save_orig_doc_to_db(document_hash, document_bytes):
-    print("save_orig_doc_to_db")
+    # print("save_orig_doc_to_db")
     QUERY = "INSERT INTO origpdfs (orig_pdf_data, orig_pdf_hash) VALUES (%s, %s) RETURNING orig_id;"
     try:
         connection = psycopg2.connect(url)
@@ -129,8 +129,8 @@ def save_orig_doc_to_db(document_hash, document_bytes):
 
 # saves the modified document to the threesyspdf table in 3.Sys db
 def save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id):
-    print("save_modified_doc_to_db")
-    print(new_pdf_hash)
+    # print("save_modified_doc_to_db")
+    # print(new_pdf_hash)
     QUERY = (
         "INSERT INTO threesyspdfs (pdf_hash, pdf_data, origpdfs_id) VALUES (%s,%s, %s);"
     )
@@ -149,7 +149,7 @@ def save_modified_doc_to_db(new_pdf_hash, new_pdf_bytes, steg_id):
 
 # generate a dm with the treepoem module
 def generate_dm(pdf_file):
-    print("generate_dm")
+    # print("generate_dm")
     metadata = pdf_file.metadata
     message = generate_message(metadata)
     return treepoem.generate_barcode(
@@ -167,7 +167,7 @@ def generate_dm(pdf_file):
 # utility function for generate_dm that generates a secret message
 # based on the given metadata to be steganographized
 def generate_message(metadata):
-    print("generate_message")
+    # print("generate_message")
     now = datetime.datetime.now()
     author = metadata["author"] if metadata["author"] else "anonymous"
     date_signed = f'{now.strftime("%B")} {now.day}, {now.year}'
@@ -177,7 +177,7 @@ def generate_message(metadata):
 # novel steganography function that uses LSB to hide the secret message in the last bits
 # (defined by chunk_size) of every pixel, red channel
 def steganography(image, secret):
-    print("steganography")
+    # print("steganography")
     chunk_size = 2
     # initialize necessary image components
     width, height = image.size
@@ -204,7 +204,7 @@ def steganography(image, secret):
 
 # utility function for steganography that converts a string into a binary stream
 def msg_to_binary_stream(str):
-    print("msg_to_binary_stream")
+    # print("msg_to_binary_stream")
     formatted_str = str + "//3.sys//"
     ascii_str = "".join(format(ord(i), "08b") for i in formatted_str)
     return ascii_str
@@ -213,22 +213,22 @@ def msg_to_binary_stream(str):
 # utility function for steganography that splits the given binary_stream into chunk_size
 # define chunks
 def chunkify(binary_stream, chunk_size):
-    print("chunkify")
+    # print("chunkify")
     return [
-        binary_stream[i: i + chunk_size]
+        binary_stream[i : i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
 
 # attaches generated steg dms to the specified location on the document
 def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
-    print("put_steg_dm_in_pdf")
+    # print("put_steg_dm_in_pdf")
     first_page = pdf_file[0]
     page_width = first_page.rect.width
     page_height = first_page.rect.height
     # google docs is weird with rect
     if "Google Docs" in pdf_file.metadata["producer"]:
-        print("the document is from google docs. inverting dm locations")
+        # print("the document is from google docs. inverting dm locations")
         match dm_steg_location:
             case "top-left":
                 x1 = allowance
@@ -284,7 +284,7 @@ def put_steg_dm_in_pdf(pdf_file, steg_dm, dm_steg_location):
 # checks if whether or not the input (unsigned) document has already been previously
 # signed by a 3.Sys signature.
 def check_if_doc_is_already_prev_signed(document_hash):
-    print("check_if_doc_is_already_prev_signed")
+    # print("check_if_doc_is_already_prev_signed")
     QUERY = "SELECT * FROM origpdfs WHERE orig_pdf_hash = (%s);"
     try:
         connection = psycopg2.connect(url)
@@ -297,9 +297,9 @@ def check_if_doc_is_already_prev_signed(document_hash):
                         origpdf_hash,
                         origpdf_data,
                     ) = cursor.fetchall()[0]
-                    print("Db hash:", origpdf_hash)
-        print("Curr hash:", document_hash)
-        print("Sign status:", cursor.rowcount > 0)
+        #             print("Db hash:", origpdf_hash)
+        # print("Curr hash:", document_hash)
+        # print("Sign status:", cursor.rowcount > 0)
         return cursor.rowcount > 0
     except (Exception, Error) as error:
         return f"Error while connecting to PostgreSQL, {error}"
@@ -311,7 +311,7 @@ def check_if_doc_is_already_prev_signed(document_hash):
 
 # defines if whether or not the document has been modifed
 def check_if_document_is_modified(document_hash, dm_stegs):
-    print("check_if_document_is_modified")
+    # print("check_if_document_is_modified")
     if len(dm_stegs) != 1:
         return True
     dm_steg = dm_stegs[0]
@@ -341,7 +341,7 @@ def check_if_document_is_modified(document_hash, dm_stegs):
 
 
 def get_hash_and_bytes_of_document(document):
-    print("get_hash_of_document")
+    # print("get_hash_of_document")
     document_bytes = document.tobytes(garbage=4, no_new_id=True)
     document_hash = hashlib.sha256(document_bytes).hexdigest()
     return (document_hash, document_bytes)
