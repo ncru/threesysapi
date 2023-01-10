@@ -18,11 +18,8 @@ def input_fail(type):
         case 0:
             response = jsonify({"message": "Invalid request"})
             response.status_code = 422
+
         case 1:
-            response = jsonify(
-                {"message": "The Pdf originates from an unknown generator. It has no workable metadata. It is recommended for the Pdf to be created using Adobe Acrobat or Microsoft Office."})
-            response.status_code = 422
-        case 2:
             response = jsonify({"message": "Pdf size unacceptable"})
             response.status_code = 422
 
@@ -38,7 +35,6 @@ def generate_pass(TSdoc):
             io.BytesIO(new_pdf_data),
             mimetype="application/pdf",
             download_name=new_pdf_file_name,
-            # as_attachment=True, auto download the file 'save as'
         )
     )
     response.status_code = 200
@@ -47,8 +43,7 @@ def generate_pass(TSdoc):
 
 
 def generate_fail():
-    response = jsonify(
-        {"message": "The document has been previously signed by 3.Sys."})
+    response = jsonify({"message": "The document has been previously signed by 3.Sys."})
     response.status_code = 422
 
     return response
@@ -96,81 +91,64 @@ def verify_falsified():
 
 
 def verify_fail():
-    response = jsonify(
-        {"message": "This document has not gone through /generate"})
+    response = jsonify({"message": "This document has not gone through /generate"})
     response.status_code = 422
 
     return response
 
 
-def generate_if_hell(TSdoc):
+def generate_decision(TSdoc):
     traits = TSdoc.traits
     # print(traits)
     print(list(traits.values()))
-    # turn your dicts to a binary list, for free!
+    # convert dictionary to a binary list
     traitsList = [int(x) for x in list(traits.values())]
-    # fmt: off
+
     match (traitsList):
-        case    [1, 0, 0, 0, 0] | \
-                [1, 0, 0, 0, 1] | \
-                [1, 0, 1, 0, 0] | \
-                [1, 0, 1, 0, 1] | \
-                [1, 1, 0, 0, 0] | \
-                [1, 1, 1, 0, 0] | \
-                [1, 1, 1, 0, 1] | \
-                [1, 1, 0, 0, 1]:
+        case [1, 0, 0, 0, 0] | [1, 0, 0, 0, 1] | [1, 0, 1, 0, 0] | [1, 0, 1, 0, 1] | [
+            1,
+            1,
+            0,
+            0,
+            0,
+        ] | [1, 1, 1, 0, 0] | [1, 1, 1, 0, 1] | [1, 1, 0, 0, 1]:
             return generate_pass(TSdoc)
-        case    [1, 0, 0, 1, 1] | \
-                [1, 0, 1, 1, 0] | \
-                [1, 0, 0, 1, 0] | \
-                [1, 1, 0, 1, 0] | \
-                [1, 1, 1, 1, 0] | \
-                [1, 1, 1, 1, 1]: 
+        case [1, 0, 0, 1, 1] | [1, 0, 1, 1, 0] | [1, 0, 0, 1, 0] | [1, 1, 0, 1, 0] | [
+            1,
+            1,
+            1,
+            1,
+            0,
+        ] | [1, 1, 1, 1, 1]:
             return generate_fail()
-        case    [0, 1, 1, 1, 0] | \
-                [0, 1, 1, 1, 1] | \
-                [1, 0, 1, 1, 1] | \
-                [1, 1, 0, 1, 1]:
+        case [0, 1, 1, 1, 0] | [0, 1, 1, 1, 1] | [1, 0, 1, 1, 1] | [1, 1, 0, 1, 1]:
             return generate_neutral()
         case _:
             return generate_fail_margin()
 
 
-# fmt: on
-
-
-def verify_if_hell(TSdoc):
+def verify_decision(TSdoc):
     traits = TSdoc.traits
     # print(traits)
     print(list(traits.values()))
-    # turn your dicts to a binary list, for free!
+    # convert dictionary to a binary list
     traitsList = [int(x) for x in list(traits.values())]
-    # fmt: off
+
     match (traitsList):
-        case    [1, 0, 1, 1, 0] | \
-                [1, 0, 0, 1, 0] | \
-                [1, 1, 0, 1, 0] | \
-                [1, 1, 1, 1, 0]: 
+        case [1, 0, 1, 1, 0] | [1, 0, 0, 1, 0] | [1, 1, 0, 1, 0] | [1, 1, 1, 1, 0]:
             return verify_pass(TSdoc)
 
-        case    [1, 0, 0, 1, 1] | \
-                [1, 0, 1, 1, 1] | \
-                [1, 1, 0, 1, 1] | \
-                [1, 1, 1, 1, 1]:
+        case [1, 0, 0, 1, 1] | [1, 0, 1, 1, 1] | [1, 1, 0, 1, 1] | [1, 1, 1, 1, 1]:
             return verify_falsified()
 
-        case    [1, 0, 0, 0, 0] | \
-                [1, 0, 0, 0, 1] | \
-                [1, 0, 1, 0, 0] | \
-                [1, 0, 1, 0, 1] | \
-                [1, 1, 0, 0, 0] | \
-                [1, 1, 1, 0, 0] | \
-                [1, 1, 1, 0, 1] | \
-                [1, 1, 0, 0, 1]:
+        case [1, 0, 0, 0, 0] | [1, 0, 0, 0, 1] | [1, 0, 1, 0, 0] | [1, 0, 1, 0, 1] | [
+            1,
+            1,
+            0,
+            0,
+            0,
+        ] | [1, 1, 1, 0, 0] | [1, 1, 1, 0, 1] | [1, 1, 0, 0, 1]:
             return verify_fail()
 
         case _:
             return verify_fail()
-
-
-# fmt: on
