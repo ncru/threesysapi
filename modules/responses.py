@@ -103,30 +103,35 @@ def generate_decision(TSdoc):
     print(list(traits.values()))
     # convert dictionary to a binary list
     traitsList = [int(x) for x in list(traits.values())]
-
+    # fmt: off
     match (traitsList):
-        case [1, 0, 0, 0, 0] | [1, 0, 0, 0, 1] | [1, 0, 1, 0, 0] | [1, 0, 1, 0, 1] | [
-            1,
-            1,
-            0,
-            0,
-            0,
-        ] | [1, 1, 1, 0, 0] | [1, 1, 1, 0, 1] | [1, 1, 0, 0, 1]:
+        case [1, 0, 0, 0, 0] |\
+             [1, 0, 0, 0, 1] |\
+             [1, 0, 1, 0, 0] |\
+             [1, 0, 1, 0, 1] |\
+             [1, 1, 0, 0, 0] |\
+             [1, 1, 1, 0, 0] |\
+             [1, 1, 1, 0, 1] |\
+             [1, 1, 0, 0, 1]:
             return generate_pass(TSdoc)
-        case [1, 0, 0, 1, 1] | [1, 0, 1, 1, 0] | [1, 0, 0, 1, 0] | [1, 1, 0, 1, 0] | [
-            1,
-            1,
-            1,
-            1,
-            0,
-        ] | [1, 1, 1, 1, 1]:
+        case [1, 0, 0, 1, 1] |\
+             [1, 0, 1, 1, 0] |\
+             [1, 0, 0, 1, 0] |\
+             [1, 1, 0, 1, 0] |\
+             [1, 1, 1, 1, 0] |\
+             [1, 1, 1, 1, 1]:
             return generate_fail()
-        case [0, 1, 1, 1, 0] | [0, 1, 1, 1, 1] | [1, 0, 1, 1, 1] | [1, 1, 0, 1, 1]:
+        case [0, 1, 1, 1, 0] |\
+             [0, 1, 1, 1, 1] |\
+             [1, 0, 1, 1, 1] |\
+             [1, 1, 0, 1, 1]:
             return generate_neutral()
         case _:
             return generate_fail_margin()
 
 
+# fmt:on
+# fmt: off
 def verify_decision(TSdoc):
     traits = TSdoc.traits
     # print(traits)
@@ -135,20 +140,28 @@ def verify_decision(TSdoc):
     traitsList = [int(x) for x in list(traits.values())]
 
     match (traitsList):
-        case [1, 0, 1, 1, 0] | [1, 0, 0, 1, 0] | [1, 1, 0, 1, 0] | [1, 1, 1, 1, 0]:
+        case [1, 0, 1, 1, 0] |\
+             [1, 0, 0, 1, 0] |\
+             [1, 1, 0, 1, 0] |\
+             [1, 1, 1, 1, 0]:
             return verify_pass(TSdoc)
 
-        case [1, 0, 0, 1, 1] | [1, 0, 1, 1, 1] | [1, 1, 0, 1, 1] | [1, 1, 1, 1, 1]:
+        case [1, 0, 0, 1, 1] |\
+             [1, 0, 1, 1, 1] |\
+             [1, 1, 0, 1, 1] |\
+             [1, 1, 1, 1, 1]:
             return verify_falsified()
 
-        case [1, 0, 0, 0, 0] | [1, 0, 0, 0, 1] | [1, 0, 1, 0, 0] | [1, 0, 1, 0, 1] | [
-            1,
-            1,
-            0,
-            0,
-            0,
-        ] | [1, 1, 1, 0, 0] | [1, 1, 1, 0, 1] | [1, 1, 0, 0, 1]:
+        case [1, 0, 0, 0, 0] |\
+             [1, 0, 0, 0, 1] |\
+             [1, 0, 1, 0, 0] |\
+             [1, 0, 1, 0, 1] |\
+             [1, 1, 0, 0, 0] |\
+             [1, 1, 1, 0, 0] |\
+             [1, 1, 1, 0, 1] |\
+             [1, 1, 0, 0, 1]:
             return verify_fail()
 
         case _:
             return verify_fail()
+# fmt:on
