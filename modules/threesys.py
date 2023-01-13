@@ -63,11 +63,11 @@ def allowed_file(filename):
 def check_document_dimensions(document):
     # print("check_document_dimensions")
     limit = 72 * 2
-    for page in document:
-        page_width = math.floor(page.rect.width)
-        page_height = math.floor(page.rect.height)
-        if page_width <= limit or page_height <= limit:
-            return False
+    page = document[0]
+    page_width = math.floor(page.rect.width)
+    page_height = math.floor(page.rect.height)
+    if page_width <= limit or page_height <= limit:
+        return False
     return True
 
 
@@ -215,7 +215,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     # print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
