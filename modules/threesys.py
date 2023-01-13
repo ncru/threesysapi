@@ -63,11 +63,11 @@ def allowed_file(filename):
 def check_document_dimensions(document):
     # print("check_document_dimensions")
     limit = 72 * 2
-    page = document[0]
-    page_width = math.floor(page.rect.width)
-    page_height = math.floor(page.rect.height)
-    if page_width <= limit or page_height <= limit:
-        return False
+    for page in document:
+        page_width = math.floor(page.rect.width)
+        page_height = math.floor(page.rect.height)
+        if page_width <= limit or page_height <= limit:
+            return False
     return True
 
 
