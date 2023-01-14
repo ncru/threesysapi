@@ -89,7 +89,7 @@ On successful run, the default route of the API will be shown in the browser, wi
 	"message" : "Please use /generate or /verify to utilize this API or open this demo application: https://threesysapidemo.up.railway.app/"
 }
 ```
-## Interaction
+## Usage
 To interact with the two API endpoints, `/generate` and `/verify`, a front end web application may be of use. Alternatively, you can use API tools like [Postman](https://www.postman.com/).
 
 The API receives `multipart/form-data` for requests, containing these key-value pairs:
