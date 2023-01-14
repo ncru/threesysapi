@@ -215,7 +215,7 @@ def msg_to_binary_stream(str):
 def chunkify(binary_stream, chunk_size):
     # print("chunkify")
     return [
-        binary_stream[i : i + chunk_size]
+        binary_stream[i: i + chunk_size]
         for i in range(0, len(binary_stream), chunk_size)
     ]
 
