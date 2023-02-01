@@ -95,11 +95,11 @@ To interact with the two API endpoints, `/generate` and `/verify`, a front end w
 The API receives `multipart/form-data` for requests, containing these key-value pairs:
 
 ##### /generate
-- **file** - a PDF file
-- **location** - text indicating which position should the signature be placed (top-left/top-right/bottom-left/bottom-right)
+- **file** - a PDF file.
+- **location** - text indicating which position should the signature be placed (top-left/top-right/bottom-left/bottom-right).
 
 ##### /verify
-- **file** - a PDF file
+- **file** - a PDF file.
 
 ------------
 
