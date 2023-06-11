@@ -24,7 +24,7 @@ This 'steganographized' Data Matrix image is then used in an electronic document
 Both copies of the signed and unsigned document are recorded in a database (this project uses [PostgreSQL](https://www.postgresql.org/) as database). These records are used for the API's verification of signed documents.
 
 ## Working Demo
-A demo web application has been created in order to present the capabilities of this API, accessible through this [link](https://threesysapidemo.up.railway.app/).
+A demo web application has been created in order to present the capabilities of this API, which is accessible through this [link](https://threesysapidemo.up.railway.app/).
 
 
 ## Features
