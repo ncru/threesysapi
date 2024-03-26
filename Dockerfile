@@ -2,6 +2,8 @@
 
 FROM python:3.11-slim-bullseye
 
+EXPOSE 8080
+
 RUN apt-get update \
     && apt-get install -y libdmtx0b \
     && apt-get install -y ghostscript
